@@ -78,7 +78,7 @@ const Login = () => {
               </div>
 
               <div>
-                <Link href="/Dash">
+                <Link href="/Dashboard">
                 
                 <Button
                   type="submit"

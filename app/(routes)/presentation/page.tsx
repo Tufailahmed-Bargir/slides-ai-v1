@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronLeft, ChevronRight, HelpCircle, Share, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 
 export default function PresentationUI() {
   const [activeCategory, setActiveCategory] = useState("BASIC")
@@ -53,7 +54,11 @@ export default function PresentationUI() {
         </TooltipProvider>
 
         {/* Slide Preview */}
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden aspect-video relative">
+        <Link href={'/input'} >
+        
+        
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl
+        hover:shadow-2xl overflow-hidden aspect-video relative">
           <div className="absolute inset-0 bg-purple-100/30 rounded-lg"></div>
           <div className="absolute inset-0 flex flex-col items-center justify-center p-12">
             <div className="flex items-center justify-center mb-6">
@@ -69,6 +74,7 @@ export default function PresentationUI() {
             </p>
           </div>
         </div>
+        </Link>
 
         {/* Layout Options */}
         <div className="mt-12">

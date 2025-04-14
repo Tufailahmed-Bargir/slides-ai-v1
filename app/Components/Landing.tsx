@@ -44,8 +44,8 @@ export default function AIPresentation() {
           </Link>
           <div className="flex justify-center items-center mb-14">
             <span className="text-sm text-[#666666]">Backed by</span>
-            <div className="ml-2 bg-gray-100 px-2 py-1 rounded">
-              <span className="font-semibold text-xs">Y Combinator</span>
+            <div className="ml-2  px-2 py-1 rounded bg-orange-500">
+              <span className="font-semibold text-xs text-white">Y Combinator</span>
             </div>
           </div>
           <div className="relative w-full max-w-4xl h-96 mb-8 shadow-lg rounded-xl overflow-hidden">
