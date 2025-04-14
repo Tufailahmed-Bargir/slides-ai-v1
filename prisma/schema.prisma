@@ -20,7 +20,27 @@ email String @unique
 pass String?
  
 image String?
+// slides Slide[]
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
  
+}
+
+model Slide{
+  id String @id @default(cuid())
+  content_input String
+  system_instruction String
+  tone String?
+  verbosity String?
+  goal String? 
+  audiance String?
+  familiarity String?
+  // slide_id String
+  
+  // relation here
+  // userId String
+  // user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
 }
