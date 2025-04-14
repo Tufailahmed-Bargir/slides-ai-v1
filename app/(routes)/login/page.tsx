@@ -3,20 +3,45 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import { signIn } from 'next-auth/react';
+import { toast, Toaster } from 'sonner';
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  // const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Sign up with:", email, password);
     // Add your signup logic here
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      // setIsLoading(true);
+      const result = await signIn('google', {
+        redirect: false,
+        callbackUrl: '/Dashboard',
+      });
+
+      if (result?.error) {
+        toast.error('Failed to sign in with Google');
+        console.error('Authentication error:', result.error);
+      } else {
+        router.push('/Dashboard');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      console.error('Unexpected error during authentication:', error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-sm border border-gray-100">
+        <Toaster position="bottom-left"/>
         <div className="space-y-6">
           {/* Google Sign In Button */}
           <button className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -32,7 +57,7 @@ const Login = () => {
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
               <path fill="none" d="M0 0h48v48H0z"/>
             </svg>
-            <span>Sign in with Google</span>
+            <span onClick={handleGoogleSignIn}>Sign in with Google</span>
           </button>
 
           <div className="mt-6">
