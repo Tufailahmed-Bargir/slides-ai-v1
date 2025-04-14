@@ -1,39 +1,93 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Info, MoveRight, X } from 'lucide-react';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { Info, MoveRight, X } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+
+// Define the form schema with Zod
+const formSchema = z.object({
+  tone: z.string().min(1, "Please select a tone"),
+  verbosity: z
+    .number()
+    .min(0, "Verbosity must be selected")
+    .max(4, "Verbosity must be selected"),
+  customTone: z.string().optional(),
+});
 
 export default function ToneCalibration() {
-  const [selectedTone, setSelectedTone] = useState('Default');
-  const [verbosity, setVerbosity] = useState(2); // MEDIUM is index 2
+  const [showCustomTone, setShowCustomTone] = useState(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      tone: "Default",
+      verbosity: 2, // MEDIUM is index 2
+      customTone: "",
+    },
+  });
+
+  const selectedTone = watch("tone");
+  const verbosity = watch("verbosity");
 
   const tones = [
-    { name: 'Default', row: 1 },
-    { name: 'Professional', row: 1 },
-    { name: 'Casual', row: 1 },
-    { name: 'Persuasive', row: 1 },
-    { name: 'Inspirational', row: 1 },
-    { name: 'Educational', row: 2 },
-    { name: 'Narrative', row: 2 },
-    { name: 'Authoritative', row: 2 },
-    { name: 'Technical', row: 2 },
-    { name: 'Empathetic', row: 2 },
+    { name: "Default", row: 1 },
+    { name: "Professional", row: 1 },
+    { name: "Casual", row: 1 },
+    { name: "Persuasive", row: 1 },
+    { name: "Inspirational", row: 1 },
+    { name: "Educational", row: 2 },
+    { name: "Narrative", row: 2 },
+    { name: "Authoritative", row: 2 },
+    { name: "Technical", row: 2 },
+    { name: "Empathetic", row: 2 },
   ];
 
-  const verbosityLabels = ['LOW', 'LOW-MEDIUM', 'MEDIUM', 'MEDIUM-HIGH', 'HIGH'];
+  const verbosityLabels = [
+    "LOW",
+    "LOW-MEDIUM",
+    "MEDIUM",
+    "MEDIUM-HIGH",
+    "HIGH",
+  ];
+
+  const handleToneSelect = (tone: string) => {
+    setValue("tone", tone, { shouldValidate: true });
+    if (tone !== "Custom") {
+      setShowCustomTone(false);
+      setValue("customTone", "");
+    }
+  };
+
+  const handleCustomToneClick = () => {
+    setShowCustomTone(true);
+    setValue("tone", "Custom", { shouldValidate: true });
+  };
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border p-6">
       <div className="flex justify-between items-center mb-4">
         <Tabs defaultValue="calibrate" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="content" className="flex items-center gap-2 text-gray-500">
+            <TabsTrigger
+              value="content"
+              className="flex items-center gap-2 text-gray-500"
+            >
               <div className="flex items-center justify-center w-5 h-5 rounded-sm bg-gray-100 text-gray-500">
                 <span className="text-xs">↩</span>
               </div>
@@ -79,13 +133,14 @@ export default function ToneCalibration() {
                 .map((tone) => (
                   <Button
                     key={tone.name}
-                    variant={selectedTone === tone.name ? 'default' : 'outline'}
+                    type="button"
+                    variant={selectedTone === tone.name ? "default" : "outline"}
                     className={`rounded-full px-4 py-2 ${
                       selectedTone === tone.name
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
                     }`}
-                    onClick={() => setSelectedTone(tone.name)}
+                    onClick={() => handleToneSelect(tone.name)}
                   >
                     {tone.name}
                   </Button>
@@ -97,24 +152,46 @@ export default function ToneCalibration() {
                 .map((tone) => (
                   <Button
                     key={tone.name}
-                    variant={selectedTone === tone.name ? 'default' : 'outline'}
+                    type="button"
+                    variant={selectedTone === tone.name ? "default" : "outline"}
                     className={`rounded-full px-4 py-2 ${
                       selectedTone === tone.name
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
                     }`}
-                    onClick={() => setSelectedTone(tone.name)}
+                    onClick={() => handleToneSelect(tone.name)}
                   >
                     {tone.name}
                   </Button>
                 ))}
             </div>
-            <Button
-              variant="outline"
-              className="rounded-full px-4 py-2 mt-2 border-dashed border-gray-300 text-gray-700"
-            >
-              Custom tone
-            </Button>
+            <div className="mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full px-4 py-2 border-dashed border-gray-300 text-gray-700"
+                onClick={handleCustomToneClick}
+              >
+                Custom tone
+              </Button>
+              {showCustomTone && (
+                <div className="mt-2">
+                  <Input
+                    {...register("customTone")}
+                    placeholder="Enter custom tone"
+                    className="w-full max-w-xs"
+                  />
+                  {errors.customTone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.customTone.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+            {errors.tone && (
+              <p className="text-red-500 text-sm mt-2">{errors.tone.message}</p>
+            )}
           </div>
 
           <Separator className="my-6" />
@@ -127,27 +204,34 @@ export default function ToneCalibration() {
                 min={0}
                 max={4}
                 step={1}
-                onValueChange={(value) => setVerbosity(value[0])}
+                onValueChange={(value) =>
+                  setValue("verbosity", value[0], { shouldValidate: true })
+                }
                 className="my-6"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-2">
                 {verbosityLabels.map((label, index) => (
                   <div
                     key={label}
-                    className={`${index === verbosity ? 'text-blue-500 font-medium' : ''}`}
+                    className={`${index === verbosity ? "text-blue-500 font-medium" : ""}`}
                   >
                     {label}
                   </div>
                 ))}
               </div>
+              {errors.verbosity && (
+                <p className="text-red-500 text-sm mt-2">
+                  {errors.verbosity.message}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="flex items-start gap-2 mt-12 text-gray-500 text-sm">
             <Info size={16} className="mt-1 flex-shrink-0" />
             <p>
-              AI will apply these settings every time you generate new slides. You can fine tune
-              these further once the slide is generated.
+              AI will apply these settings every time you generate new slides.
+              You can fine tune these further once the slide is generated.
             </p>
           </div>
         </div>
@@ -155,25 +239,29 @@ export default function ToneCalibration() {
         <div className="bg-gray-50 p-6 rounded-lg">
           <div className="text-gray-500 text-sm mb-2">Preview</div>
           <div className="space-y-4">
-            <h1 className="text-xl font-medium text-gray-800"># Large Language Models (LLMs)</h1>
+            <h1 className="text-xl font-medium text-gray-800">
+              # Large Language Models (LLMs)
+            </h1>
             <div className="space-y-2 text-gray-700">
               <p>
-                * AI systems trained on vast text datasets that can understand and generate
-                human-like text
+                * AI systems trained on vast text datasets that can understand
+                and generate human-like text
               </p>
               <p>
-                * Capable of various tasks including translation, summarization, and creative
-                content generation
+                * Capable of various tasks including translation, summarization,
+                and creative content generation
               </p>
-              <p>* Built on transformer architecture with billions of parameters</p>
+              <p>
+                * Built on transformer architecture with billions of parameters
+              </p>
               <p>* Examples include GPT, BERT, and LLaMA models</p>
               <p>* Raise important considerations around ethics, bias, and</p>
             </div>
             <div className="flex items-start gap-2 mt-8 text-gray-500 text-sm">
               <Info size={16} className="mt-0.5 flex-shrink-0" />
               <p>
-                This is dummy text for setting the tone and verbosity, not actual content from the
-                slides.
+                This is dummy text for setting the tone and verbosity, not
+                actual content from the slides.
               </p>
             </div>
           </div>
@@ -184,12 +272,16 @@ export default function ToneCalibration() {
         <Button variant="outline" className="text-blue-500">
           Back
         </Button>
-        <Link href="/Final">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
-            Generate Slide
-            <MoveRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        <Button
+          onClick={handleSubmit((data) => {
+            console.log(data); // Handle form data as needed
+            router.push("/Final");
+          })}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+        >
+          Generate Slide
+          <MoveRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

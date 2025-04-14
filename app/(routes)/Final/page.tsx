@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import { ChevronDown, MessageSquare, Play, Share2, Sparkles } from 'lucide-react';
+import {
+  ChevronDown,
+  MessageSquare,
+  Play,
+  Share2,
+  Sparkles,
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 // import { Card } from '@/components/ui/card';
 
 export default function PresentationInterface() {
