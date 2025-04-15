@@ -8,9 +8,9 @@ export async function POST(req:NextRequest){
     console.log(data);
     
     
-    const {instructions, content } = data;
+    const {tone, verbosity } = data;
 
-    if(!instructions || !content){
+    if(!tone || !verbosity){
         return NextResponse.json({
             msg:"input all the fields",
             success:false
@@ -18,15 +18,18 @@ export async function POST(req:NextRequest){
         }, {status:201})
     }
 
-    const inputSlideData = await prisma.slide.create({
+    const inputSlideData = await prisma.slide.update({
+        where:{
+            id:'cm9huykuk0008ulaw81th6sjp'
+        },
         data:{
-            content_input:content,
-            system_instruction:instructions
+            tone,
+            verbosity
         }
     })
 
     return NextResponse.json({
-        msg:"input and system instruction saved success",
+        msg:"tone and verbosity saved success",
         inputSlideData,
         success:true
     })

@@ -31,7 +31,7 @@ model Slide{
   content_input String
   system_instruction String
   tone String?
-  verbosity String?
+  verbosity Int?
   goal String? 
   audiance String?
   familiarity String?

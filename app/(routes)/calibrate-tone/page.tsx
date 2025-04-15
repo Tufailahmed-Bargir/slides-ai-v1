@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
+import { toast } from "sonner";
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -273,9 +275,13 @@ export default function ToneCalibration() {
           Back
         </Button>
         <Button
-          onClick={handleSubmit((data) => {
-            console.log(data); // Handle form data as needed
-            router.push("/Final");
+          onClick={handleSubmit(async (data) => {
+            console.log(data); 
+            const response = await axios.post("/api/set-calibrate-tone", data)
+            if(response.data.success){
+              toast.success("Tone and verbosity saved successfully");
+              router.push("/Final");
+            }
           })}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6"
         >

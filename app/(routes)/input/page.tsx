@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChevronDown, HelpCircle, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from 'sonner';
  
 
 // Define the form schema with Zod
@@ -32,7 +33,7 @@ export default function PresentationCreator() {
   const [showSlideSelector, setShowSlideSelector] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
 
-  // const router = useRouter();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -67,6 +68,10 @@ export default function PresentationCreator() {
    
     const response = await axios.post('/api/input', data)
 
+    if(response.data.success){
+      toast.success('Input and system instruction saved successfully')
+      router.push('/calibrate-tone')
+    }
    console.log('response is');
    console.log(response.data);
   
