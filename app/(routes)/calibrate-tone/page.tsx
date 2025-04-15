@@ -1,11 +1,12 @@
+ 
 "use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
-import { Info, MoveRight, X } from "lucide-react";
+// import { useRouter } from "next/navigation";
+import { Info, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { toast } from "sonner";
 
-// Define the form schema with Zod
 const formSchema = z.object({
   tone: z.string().min(1, "Please select a tone"),
   verbosity: z
@@ -27,7 +27,7 @@ const formSchema = z.object({
 
 export default function ToneCalibration() {
   const [showCustomTone, setShowCustomTone] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const {
     register,
@@ -39,7 +39,7 @@ export default function ToneCalibration() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       tone: "Default",
-      verbosity: 2, // MEDIUM is index 2
+      verbosity: 2,
       customTone: "",
     },
   });
@@ -68,11 +68,20 @@ export default function ToneCalibration() {
     "HIGH",
   ];
 
-  const handleToneSelect = (tone: string) => {
+  const handleToneSelect = async (tone: string) => {
     setValue("tone", tone, { shouldValidate: true });
     if (tone !== "Custom") {
       setShowCustomTone(false);
       setValue("customTone", "");
+    }
+
+    try {
+      const response = await axios.post("/api/set-calibrate-tone", {
+        tone,
+      });
+      console.log("Tone response:", response.data);
+    } catch (err) {
+      console.error("Error setting tone:", err);
     }
   };
 
@@ -86,10 +95,7 @@ export default function ToneCalibration() {
       <div className="flex justify-between items-center mb-4">
         <Tabs defaultValue="calibrate" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger
-              value="content"
-              className="flex items-center gap-2 text-gray-500"
-            >
+            <TabsTrigger value="content" className="flex items-center gap-2 text-gray-500">
               <div className="flex items-center justify-center w-5 h-5 rounded-sm bg-gray-100 text-gray-500">
                 <span className="text-xs">↩</span>
               </div>
@@ -127,6 +133,7 @@ export default function ToneCalibration() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         <div className="space-y-8">
+          {/* Tone Selection */}
           <div>
             <h3 className="text-gray-700 font-medium mb-4">Calibrate Tone</h3>
             <div className="flex flex-wrap gap-2">
@@ -167,6 +174,8 @@ export default function ToneCalibration() {
                   </Button>
                 ))}
             </div>
+
+            {/* Custom Tone Input */}
             <div className="mt-2">
               <Button
                 type="button"
@@ -191,6 +200,7 @@ export default function ToneCalibration() {
                 </div>
               )}
             </div>
+
             {errors.tone && (
               <p className="text-red-500 text-sm mt-2">{errors.tone.message}</p>
             )}
@@ -198,6 +208,7 @@ export default function ToneCalibration() {
 
           <Separator className="my-6" />
 
+          {/* Verbosity */}
           <div>
             <h3 className="text-gray-700 font-medium mb-6">Set Verbosity</h3>
             <div className="px-2">
@@ -206,11 +217,22 @@ export default function ToneCalibration() {
                 min={0}
                 max={4}
                 step={1}
-                onValueChange={(value) =>
-                  setValue("verbosity", value[0], { shouldValidate: true })
-                }
+                onValueChange={async (value) => {
+                  const level = value[0];
+                  setValue("verbosity", level, { shouldValidate: true });
+
+                  try {
+                    const response = await axios.post("/api/set-calibrate-verbosity", {
+                      verbosity: level,
+                    });
+                    console.log("Verbosity saved:", response.data);
+                  } catch (error) {
+                    console.error("Error saving verbosity", error);
+                  }
+                }}
                 className="my-6"
               />
+
               <div className="flex justify-between text-xs text-gray-500 mt-2">
                 {verbosityLabels.map((label, index) => (
                   <div
@@ -221,6 +243,7 @@ export default function ToneCalibration() {
                   </div>
                 ))}
               </div>
+
               {errors.verbosity && (
                 <p className="text-red-500 text-sm mt-2">
                   {errors.verbosity.message}
@@ -229,6 +252,7 @@ export default function ToneCalibration() {
             </div>
           </div>
 
+          {/* Info Box */}
           <div className="flex items-start gap-2 mt-12 text-gray-500 text-sm">
             <Info size={16} className="mt-1 flex-shrink-0" />
             <p>
@@ -238,6 +262,7 @@ export default function ToneCalibration() {
           </div>
         </div>
 
+        {/* Preview Section */}
         <div className="bg-gray-50 p-6 rounded-lg">
           <div className="text-gray-500 text-sm mb-2">Preview</div>
           <div className="space-y-4">
@@ -245,50 +270,40 @@ export default function ToneCalibration() {
               # Large Language Models (LLMs)
             </h1>
             <div className="space-y-2 text-gray-700">
-              <p>
-                * AI systems trained on vast text datasets that can understand
-                and generate human-like text
-              </p>
-              <p>
-                * Capable of various tasks including translation, summarization,
-                and creative content generation
-              </p>
-              <p>
-                * Built on transformer architecture with billions of parameters
-              </p>
-              <p>* Examples include GPT, BERT, and LLaMA models</p>
-              <p>* Raise important considerations around ethics, bias, and</p>
+              <p>* AI systems trained on vast text datasets</p>
+              <p>* Tasks: translation, summarization, content generation</p>
+              <p>* Built on transformer architecture</p>
+              <p>* Examples: GPT, BERT, LLaMA</p>
+              <p>* Important considerations: ethics, bias, etc.</p>
             </div>
             <div className="flex items-start gap-2 mt-8 text-gray-500 text-sm">
               <Info size={16} className="mt-0.5 flex-shrink-0" />
-              <p>
-                This is dummy text for setting the tone and verbosity, not
-                actual content from the slides.
-              </p>
+              <p>This is dummy text for setting tone and verbosity.</p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Navigation Buttons */}
       <div className="flex justify-between mt-8 pt-4 border-t">
         <Button variant="outline" className="text-blue-500">
           Back
         </Button>
         <Button
           onClick={handleSubmit(async (data) => {
-            console.log(data); 
-            const response = await axios.post("/api/set-calibrate-tone", data)
-            if(response.data.success){
-              toast.success("Tone and verbosity saved successfully");
-              router.push("/Final");
+            try {
+              const response = await axios.post("/api/generate-slides", data);
+              console.log("Final Submit:", response.data.slides);
+            } catch (err) {
+              console.error("Submit error:", err);
+              toast.error("Failed to save settings.");
             }
           })}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6"
         >
-          Generate Slide
-          <MoveRight className="ml-2 h-4 w-4" />
+          Generate slides
         </Button>
       </div>
     </div>
   );
 }
+
