@@ -3,17 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(req:NextRequest){
-    try{
     const data = await req.json()
     console.log('data revied at backend is');
     console.log(data);
-    const {tone} = data;
     
-     
+    
+    const {verbosity } = data;
 
-    if(!tone ){
+    if(!verbosity){
         return NextResponse.json({
-            msg:"input the tone",
+            msg:"input verbosity",
             success:false
         
         }, {status:201})
@@ -24,20 +23,14 @@ export async function POST(req:NextRequest){
             id:'cm9huykuk0008ulaw81th6sjp'
         },
         data:{
-            tone
              
+            verbosity
         }
     })
 
     return NextResponse.json({
-        msg:"tone saved success",
+        msg:"  verbosity saved success",
         inputSlideData,
         success:true
     })
-
-}catch(e){
-    return NextResponse.json({
-        msg:"error found",e
-    })
-}
 }
