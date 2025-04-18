@@ -3,10 +3,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 import { toast, Toaster } from "sonner";
 const Login = () => {
+
+  const { data: session } = useSession()
+ 
+  if(session?.user){
+    redirect('/dashboard')
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // const [isLoading, setIsLoading] = useState(false);
@@ -22,14 +28,14 @@ const Login = () => {
       // setIsLoading(true);
       const result = await signIn("google", {
         redirect: false,
-        callbackUrl: "/Dashboard",
+        callbackUrl: "/dashboard",
       });
 
       if (result?.error) {
         toast.error("Failed to sign in with Google");
         console.error("Authentication error:", result.error);
       } else {
-        router.push("/Dashboard");
+        router.push("/dashboard");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -44,7 +50,10 @@ const Login = () => {
         <Toaster position="bottom-left" />
         <div className="space-y-6">
           {/* Google Sign In Button */}
-          <button className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <button 
+            onClick={handleGoogleSignIn}
+            className="flex items-center justify-center w-full px-4 py-2 space-x-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             <svg
               width="18"
               height="18"
@@ -69,7 +78,7 @@ const Login = () => {
               />
               <path fill="none" d="M0 0h48v48H0z" />
             </svg>
-            <span onClick={handleGoogleSignIn}>Sign in with Google</span>
+            <span>Sign in with Google</span>
           </button>
 
           <div className="mt-6">
@@ -115,7 +124,7 @@ const Login = () => {
               </div>
 
               <div>
-                <Link href="/Dashboard">
+                <Link href="/dashboard">
                   <Button
                     type="submit"
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#1e3a5f] hover:bg-[#15294a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

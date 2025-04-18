@@ -1,20 +1,34 @@
 import prisma from "@/lib/db";
 import { GoogleGenAI } from "@google/genai";
- 
+
 import { system_prompt } from "./system_prompt";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-type InputType = {
-    content_input:string,
-    tone:string,
-    verbosity:number
-}
-async function generateWithGemini({content_input, tone, verbosity}:InputType) {
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: `create me slides on topic [${content_input}]
-tone [${tone}], verbosity[level-${verbosity}]  i need 3 SLIDES CONTENT
+export async function POST(req:NextRequest){
+  try {
+    const data = await req.json()
+    console.log('data recived is', data);
+    
+    const {id}= data;
+
+    const presentation = await prisma.presentation.findFirst({
+        where:{id}
+    }
+    )
+ 
+    if(!presentation){
+        return NextResponse.json({
+            msg:"presenatation not found",
+            success:false
+        })
+    }
+
+    const {content_input, system_instruction, tone, verbosity} = presentation;
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `create me slides on topic [${content_input}]
+tone [${tone}], verbosity[level-${verbosity}] and follow this design guide bu the user [${system_instruction}] i need 3 SLIDES CONTENT
 
 the verbosity level is defined as
 VERBOSITY-LEVEL {
@@ -25,56 +39,37 @@ LEVEL-3 :[90 TOKENS PER SLIDE]
 
 }
 
- 
-
 `,
-    config: {
-      systemInstruction: system_prompt,
-      maxOutputTokens: 1000,
-      temperature: 0.5,
-     responseMimeType:"application/json"
-    },
-  });
-  console.log('hello form gemini');
-  
-  console.log(response.text);
-  return response.text
-}
-export async function POST(){
-     try{
-    const slide = await prisma.slide.findFirst({
-        where:{
-            id:"cm9huykuk0008ulaw81th6sjp"
-        }
-    })
-    console.log('slide data is', slide);
-    // @ts-expect-error some-type-error
-    const {content_input,tone, verbosity}:InputType = slide;
+      config: {
+        systemInstruction: system_prompt,
+        maxOutputTokens: 1000,
+        temperature: 0.5,
+        responseMimeType:"application/json"
+      },
+    });
+    console.log('hello form gemini');
     
+    console.log(response.text);
+ 
+    const updatePresentation = await prisma.presentation.update({
+      where:{id},
+      data:{
+          generated_content:response.text
+      }
+    })
 
-    const response = await generateWithGemini({content_input,tone, verbosity})
-
-    console.log('response from gemini', response);
     return NextResponse.json({
-        msg:"content generated success!",
-        success:true,
-        response
+      msg:"content generated success!",
+      success:true,
+      
+      id:updatePresentation.id
     })
-}catch(e){
- return NextResponse.json({
-    msg:"error found!",
-    e
- })
-}
-
-  
-    
-    
-     
-
-    
-
-   
-
-   
+  } catch(e) {
+    console.error('Error generating slides:', e);
+    return NextResponse.json({
+      msg:"error found!",
+      error: e instanceof Error ? e.message : 'Unknown error',
+      success: false
+    }, { status: 500 })
+  }
 }

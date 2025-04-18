@@ -8,19 +8,19 @@ export async function POST(req:NextRequest){
     console.log(data);
     
     
-    const {verbosity } = data;
+    const {verbosity, id } = data;
 
-    if(!verbosity){
+    if(!verbosity ||!id){
         return NextResponse.json({
-            msg:"input verbosity",
+            msg:"input verbosity and id",
             success:false
         
         }, {status:201})
     }
 
-    const inputSlideData = await prisma.slide.update({
+    const updatePresentation = await prisma.presentation.update({
         where:{
-            id:'cm9huykuk0008ulaw81th6sjp'
+            id 
         },
         data:{
              
@@ -29,8 +29,9 @@ export async function POST(req:NextRequest){
     })
 
     return NextResponse.json({
-        msg:"  verbosity saved success",
-        inputSlideData,
-        success:true
+        msg:"verbosity saved success",
+      
+        success:true,
+        id:updatePresentation.id
     })
 }

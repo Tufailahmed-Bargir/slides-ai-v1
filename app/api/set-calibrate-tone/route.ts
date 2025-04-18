@@ -7,11 +7,19 @@ export async function POST(req:NextRequest){
     const data = await req.json()
     console.log('data revied at backend is');
     console.log(data);
-    const {tone} = data;
+    const {tone, id} = data;
     
-     
+     const presentation = await prisma.presentation.findFirst({
+        where:{id}
+     })
 
-    if(!tone ){
+     if(!presentation){
+        return NextResponse.json({
+            msg:"cannot find the presentation",
+            success:false
+        })
+     }
+    if(!tone ||!id ){
         return NextResponse.json({
             msg:"input the tone",
             success:false
@@ -19,10 +27,8 @@ export async function POST(req:NextRequest){
         }, {status:201})
     }
 
-    const inputSlideData = await prisma.slide.update({
-        where:{
-            id:'cm9huykuk0008ulaw81th6sjp'
-        },
+    const updatePresentation = await prisma.presentation.update({
+        where:{id},
         data:{
             tone
              
@@ -31,8 +37,9 @@ export async function POST(req:NextRequest){
 
     return NextResponse.json({
         msg:"tone saved success",
-        inputSlideData,
-        success:true
+        
+        success:true,
+        id:updatePresentation.id
     })
 
 }catch(e){

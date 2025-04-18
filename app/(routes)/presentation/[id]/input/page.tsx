@@ -1,6 +1,6 @@
 "use client";
 import axios from 'axios'
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,7 +28,9 @@ const formSchema = z.object({
   familiarity: z.string().optional(),
 });
 
-export default function PresentationCreator() {
+export default function PresentationCreator({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = React.use(params);
+    console.log('id is', id);
   const [slideCount, setSlideCount] = useState(1);
   const [showSlideSelector, setShowSlideSelector] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
@@ -59,18 +61,19 @@ export default function PresentationCreator() {
     content:string,
     goal?:string,
     familiarity?:string,
-    audience?:string
+    audience?:string,
+    
 
   }
   const onSubmit = async (data:InputType) => {
     console.log('data is');
     console.log(data);
    
-    const response = await axios.post('/api/input', data)
+    const response = await axios.post('/api/input', {data, id})
 
     if(response.data.success){
       toast.success('Input and system instruction saved successfully')
-      router.push('/calibrate-tone')
+      router.push(`/presentation/${response.data.id}/tone`)
     }
    console.log('response is');
    console.log(response.data);

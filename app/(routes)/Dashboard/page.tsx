@@ -1,9 +1,38 @@
+'use client'
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, MonitorPlay, ChevronDown } from "lucide-react";
 import Link from "next/link";
-
+import axios from "axios";
+import { redirect, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Loader from "@/app/Components/Loader";
 export default function PresentationDashboard() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+
+  if(status ==='loading'){
+    return <Loader/>
+  }
+  if (!session?.user) {
+    redirect('/login')
+  }
+
+  
+  const handleClick = async () => {
+    const data = {
+      name: 'ahmed'  // Fixed typo from 'namd' to 'name'
+    }
+     const res = await axios.post('/api/presentation',data)
+     console.log('response from /prese... rote');
+     console.log(res.data);
+     if(res.data.success){
+
+       router.push(`/presentation/${res.data.id}`)
+     }
+     
+     
+  }
   return (
     <div className="flex h-screen bg-white">
       {/* Left Sidebar */}
@@ -19,12 +48,12 @@ export default function PresentationDashboard() {
 
         {/* Create Button */}
         <div className="px-4 py-2">
-          <Link href="/presentation">
-            <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white flex items-center gap-2 justify-center">
+         
+            <Button onClick={handleClick} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white flex items-center gap-2 justify-center">
               <MonitorPlay className="w-5 h-5" />
               Create new presentation
             </Button>
-          </Link>
+           
         </div>
 
         {/* Navigation */}
@@ -48,7 +77,7 @@ export default function PresentationDashboard() {
             <p className="text-gray-700 text-lg font-medium mb-2">
               No presentations yet
             </p>
-            <Link href="#" className="text-blue-500 hover:underline">
+            <Link href={'#'} className="text-blue-500 hover:underline">
               Create your first presentation
             </Link>
           </div>

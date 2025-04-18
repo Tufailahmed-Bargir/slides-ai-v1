@@ -1,11 +1,11 @@
  
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Info, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,11 @@ const formSchema = z.object({
   customTone: z.string().optional(),
 });
 
-export default function ToneCalibration() {
+export default function ToneCalibration({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = React.use(params);
+    console.log('id is', id);
   const [showCustomTone, setShowCustomTone] = useState(false);
-  // const router = useRouter();
+  const router = useRouter();
 
   const {
     register,
@@ -76,10 +78,14 @@ export default function ToneCalibration() {
     }
 
     try {
-      const response = await axios.post("/api/set-calibrate-tone", {
-        tone,
-      });
+     const  data={
+        tone,id
+      }
+      const response = await axios.post("/api/set-calibrate-tone", data);
       console.log("Tone response:", response.data);
+      if(response.data.success){
+        toast.success('tone set success!')
+      }
     } catch (err) {
       console.error("Error setting tone:", err);
     }
@@ -222,10 +228,12 @@ export default function ToneCalibration() {
                   setValue("verbosity", level, { shouldValidate: true });
 
                   try {
-                    const response = await axios.post("/api/set-calibrate-verbosity", {
-                      verbosity: level,
-                    });
+                    const response = await axios.post("/api/set-calibrate-verbosity", {verbosity: level,id});
                     console.log("Verbosity saved:", response.data);
+                    if(response.data.success){
+                      toast.success('verbosity set success!')
+                     
+                    }
                   } catch (error) {
                     console.error("Error saving verbosity", error);
                   }
@@ -292,8 +300,11 @@ export default function ToneCalibration() {
         <Button
           onClick={handleSubmit(async (data) => {
             try {
-              const response = await axios.post("/api/generate-slides", data);
-              console.log("Final Submit:", response.data.slides);
+              const response = await axios.post("/api/generate-slides", {data, id});
+              console.log("Final Submit:", response.data);
+              if(response.data.success){
+                router.push(`/presentation/${response.data.id}/preview`)
+              }
             } catch (err) {
               console.error("Submit error:", err);
               toast.error("Failed to save settings.");
@@ -306,4 +317,3 @@ export default function ToneCalibration() {
     </div>
   );
 }
-

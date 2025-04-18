@@ -8,9 +8,9 @@ export async function POST(req:NextRequest){
     console.log(data);
     
     
-    const {instructions, content } = data;
+ const {data: { content, instructions },id} = data;
 
-    if(!instructions || !content){
+    if(!instructions || !content ||!id){
         return NextResponse.json({
             msg:"input all the fields",
             success:false
@@ -18,7 +18,18 @@ export async function POST(req:NextRequest){
         }, {status:201})
     }
 
-    const inputSlideData = await prisma.slide.create({
+    const presentation = await prisma.presentation.findFirst({
+        where:{id}
+    })
+
+    if(!presentation){
+        return NextResponse.json({
+            msg:"presentation not found",
+            success:false
+        })
+    }
+    const updatePresentation = await prisma.presentation.update({
+       where:{id},
         data:{
             content_input:content,
             system_instruction:instructions
@@ -27,7 +38,9 @@ export async function POST(req:NextRequest){
 
     return NextResponse.json({
         msg:"input and system instruction saved success",
-        inputSlideData,
-        success:true
+        
+        success:true,
+        id:updatePresentation.id
+
     })
 }
