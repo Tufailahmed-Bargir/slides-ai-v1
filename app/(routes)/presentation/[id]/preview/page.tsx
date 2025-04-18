@@ -1,54 +1,30 @@
+import { Suspense } from "react";
+import PreviewContent from "./PreviewContent";
 import prisma from "@/lib/db";
-import SlideCard from "./SlidesCard";
 
-interface Slide {
-  title: string;
-  content: string[];
-  visuals: string;
-  layout: string;
-}
-
-interface PresentationContent {
-  slides: Slide[];
-}
-
-export default async function Preview(props: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await props.params;
-  const slideData = await prisma.presentation.findFirst({
-    where: { id },
+async function getPresentation(id: string) {
+  const presentation = await prisma.presentation.findFirst({
+    where: { id }
   });
+  return presentation;
+}
 
-  if (!slideData || !slideData.generated_content) {
-    return <div>No presentation found</div>;
-  }
-
-  const content = JSON.parse(
-    slideData.generated_content,
-  ) as PresentationContent;
-
-  // Ensure content.slides exists and each slide's content is an array
-  const processedContent = {
-    slides: content.slides.map((slide) => ({
-      ...slide,
-      content: Array.isArray(slide.content) ? slide.content : [slide.content],
-    })),
-  };
-
+export default async function Preview(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+  const initialData = await getPresentation(id);
+  
   return (
-    <div className="flex flex-col items-center p-6 bg-gray-100 min-h-screen">
-      <div className="w-full max-w-5xl">
-        {processedContent.slides.map((slide, idx) => (
-          <SlideCard
-            key={idx}
-            title={slide.title}
-            content={slide.content}
-            visuals={slide.visuals}
-            layout={slide.layout}
-          />
-        ))}
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-2 text-gray-800">Loading...</h2>
+          <div className="animate-pulse flex justify-center">
+            <div className="h-8 w-8 bg-blue-500 rounded-full"></div>
+          </div>
+        </div>
       </div>
-    </div>
+    }>
+      <PreviewContent initialData={initialData} />
+    </Suspense>
   );
 }

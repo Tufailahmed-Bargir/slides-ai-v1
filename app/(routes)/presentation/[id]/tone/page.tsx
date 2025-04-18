@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { Info, X } from "lucide-react";
+import { Info, X, ArrowLeft, SparklesIcon, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -30,8 +30,8 @@ export default function ToneCalibration({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
-  console.log("id is", id);
   const [showCustomTone, setShowCustomTone] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
 
   const {
@@ -101,230 +101,287 @@ export default function ToneCalibration({
   };
 
   return (
-    <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border p-6">
-      <div className="flex justify-between items-center mb-4">
-        <Tabs defaultValue="calibrate" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger
-              value="content"
-              className="flex items-center gap-2 text-gray-500"
-            >
-              <div className="flex items-center justify-center w-5 h-5 rounded-sm bg-gray-100 text-gray-500">
-                <span className="text-xs">↩</span>
-              </div>
-              Enter your Content
-            </TabsTrigger>
-            <TabsTrigger value="calibrate" className="text-blue-500">
-              <div className="flex items-center gap-2">
-                <span className="text-blue-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                    <line x1="9" y1="9" x2="9.01" y2="9" />
-                    <line x1="15" y1="9" x2="15.01" y2="9" />
-                  </svg>
-                </span>
-                Calibrate Tone & Verbosity
-              </div>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <button className="text-gray-400 hover:text-gray-600">
-          <X size={20} />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-        <div className="space-y-8">
-          {/* Tone Selection */}
-          <div>
-            <h3 className="text-gray-700 font-medium mb-4">Calibrate Tone</h3>
-            <div className="flex flex-wrap gap-2">
-              {tones
-                .filter((tone) => tone.row === 1)
-                .map((tone) => (
-                  <Button
-                    key={tone.name}
-                    type="button"
-                    variant={selectedTone === tone.name ? "default" : "outline"}
-                    className={`rounded-full px-4 py-2 ${
-                      selectedTone === tone.name
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    }`}
-                    onClick={() => handleToneSelect(tone.name)}
-                  >
-                    {tone.name}
-                  </Button>
-                ))}
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {tones
-                .filter((tone) => tone.row === 2)
-                .map((tone) => (
-                  <Button
-                    key={tone.name}
-                    type="button"
-                    variant={selectedTone === tone.name ? "default" : "outline"}
-                    className={`rounded-full px-4 py-2 ${
-                      selectedTone === tone.name
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    }`}
-                    onClick={() => handleToneSelect(tone.name)}
-                  >
-                    {tone.name}
-                  </Button>
-                ))}
-            </div>
-
-            {/* Custom Tone Input */}
-            <div className="mt-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-full px-4 py-2 border-dashed border-gray-300 text-gray-700"
-                onClick={handleCustomToneClick}
+    <div className="min-h-screen bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-slate-50 via-white to-white p-6">
+      <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-100">
+        {/* Header */}
+        <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-white/70 backdrop-blur-lg sticky top-0 z-50">
+          <Tabs defaultValue="calibrate" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 p-1 bg-gray-50/50 rounded-xl">
+              <TabsTrigger
+                value="content"
+                className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg px-4 py-2 transition-all"
               >
-                Custom tone
-              </Button>
-              {showCustomTone && (
-                <div className="mt-2">
-                  <Input
-                    {...register("customTone")}
-                    placeholder="Enter custom tone"
-                    className="w-full max-w-xs"
-                  />
-                  {errors.customTone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.customTone.message}
-                    </p>
+                <div className="flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 text-gray-500">
+                  <ArrowLeft className="h-4 w-4" />
+                </div>
+                Back to Content
+              </TabsTrigger>
+              <TabsTrigger 
+                value="calibrate" 
+                className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg px-4 py-2 transition-all"
+              >
+                <div className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-100 text-blue-500">
+                  <SparklesIcon className="h-4 w-4" />
+                </div>
+                Tone & Verbosity
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+          <div className="space-y-8">
+            {/* Tone Selection */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                  <SparklesIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Calibrate Tone</h3>
+                  <p className="text-sm text-gray-500">Choose the tone that best fits your presentation</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {tones
+                    .filter((tone) => tone.row === 1)
+                    .map((tone) => (
+                      <Button
+                        key={tone.name}
+                        type="button"
+                        variant={selectedTone === tone.name ? "default" : "outline"}
+                        className={`rounded-full px-4 py-2 transition-all duration-200 ${
+                          selectedTone === tone.name
+                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30"
+                            : "bg-white/50 backdrop-blur-sm text-gray-700 hover:bg-gray-50"
+                        }`}
+                        onClick={() => handleToneSelect(tone.name)}
+                      >
+                        {tone.name}
+                      </Button>
+                    ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {tones
+                    .filter((tone) => tone.row === 2)
+                    .map((tone) => (
+                      <Button
+                        key={tone.name}
+                        type="button"
+                        variant={selectedTone === tone.name ? "default" : "outline"}
+                        className={`rounded-full px-4 py-2 transition-all duration-200 ${
+                          selectedTone === tone.name
+                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30"
+                            : "bg-white/50 backdrop-blur-sm text-gray-700 hover:bg-gray-50"
+                        }`}
+                        onClick={() => handleToneSelect(tone.name)}
+                      >
+                        {tone.name}
+                      </Button>
+                    ))}
+                </div>
+
+                {/* Custom Tone Input */}
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={`rounded-full px-4 py-2 border-dashed border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600 transition-all ${
+                      showCustomTone ? "bg-blue-50 border-blue-200 text-blue-600" : ""
+                    }`}
+                    onClick={handleCustomToneClick}
+                  >
+                    + Custom tone
+                  </Button>
+                  {showCustomTone && (
+                    <div className="mt-3">
+                      <Input
+                        {...register("customTone")}
+                        placeholder="Enter custom tone"
+                        className="w-full max-w-xs rounded-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                      {errors.customTone && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center gap-1.5">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                          </svg>
+                          {errors.customTone.message}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
+              </div>
+
+              {errors.tone && (
+                <p className="text-red-500 text-sm mt-2 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                  </svg>
+                  {errors.tone.message}
+                </p>
               )}
             </div>
 
-            {errors.tone && (
-              <p className="text-red-500 text-sm mt-2">{errors.tone.message}</p>
-            )}
-          </div>
+            <Separator className="my-8 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
 
-          <Separator className="my-6" />
+            {/* Verbosity */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2.5 rounded-xl text-white shadow-lg shadow-purple-500/20">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Set Verbosity</h3>
+                  <p className="text-sm text-gray-500">Adjust the level of detail in your slides</p>
+                </div>
+              </div>
 
-          {/* Verbosity */}
-          <div>
-            <h3 className="text-gray-700 font-medium mb-6">Set Verbosity</h3>
-            <div className="px-2">
-              <Slider
-                value={[verbosity]}
-                min={0}
-                max={4}
-                step={1}
-                onValueChange={async (value) => {
-                  const level = value[0];
-                  setValue("verbosity", level, { shouldValidate: true });
+              <div className="px-2">
+                <Slider
+                  value={[verbosity]}
+                  min={0}
+                  max={4}
+                  step={1}
+                  onValueChange={async (value) => {
+                    const level = value[0];
+                    setValue("verbosity", level, { shouldValidate: true });
 
-                  try {
-                    const response = await axios.post(
-                      "/api/set-calibrate-verbosity",
-                      { verbosity: level, id },
-                    );
-                    console.log("Verbosity saved:", response.data);
-                    if (response.data.success) {
-                      toast.success("verbosity set success!");
+                    try {
+                      const response = await axios.post(
+                        "/api/set-calibrate-verbosity",
+                        { verbosity: level, id },
+                      );
+                      if (response.data.success) {
+                        toast.success("Verbosity level updated", {
+                          description: `Set to ${verbosityLabels[level]}`,
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Error saving verbosity", error);
+                      toast.error("Failed to update verbosity level");
                     }
-                  } catch (error) {
-                    console.error("Error saving verbosity", error);
-                  }
-                }}
-                className="my-6"
-              />
+                  }}
+                  className="my-6"
+                />
 
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                {verbosityLabels.map((label, index) => (
-                  <div
-                    key={label}
-                    className={`${index === verbosity ? "text-blue-500 font-medium" : ""}`}
-                  >
-                    {label}
-                  </div>
-                ))}
+                <div className="flex justify-between text-xs font-medium mt-4">
+                  {verbosityLabels.map((label, index) => (
+                    <div
+                      key={label}
+                      className={`flex flex-col items-center transition-colors ${
+                        index === verbosity 
+                        ? "text-blue-600" 
+                        : "text-gray-400"
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full mb-2 ${
+                        index === verbosity 
+                        ? "bg-blue-600" 
+                        : "bg-gray-300"
+                      }`} />
+                      {label}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {errors.verbosity && (
-                <p className="text-red-500 text-sm mt-2">
+                <p className="text-red-500 text-sm mt-2 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                  </svg>
                   {errors.verbosity.message}
                 </p>
               )}
             </div>
+
+            {/* Info Box */}
+            <div className="flex items-start gap-3 mt-8 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/50">
+              <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-600">
+                AI will apply these settings every time you generate new slides.
+                You can fine-tune these further once the slides are generated.
+              </p>
+            </div>
           </div>
 
-          {/* Info Box */}
-          <div className="flex items-start gap-2 mt-12 text-gray-500 text-sm">
-            <Info size={16} className="mt-1 flex-shrink-0" />
-            <p>
-              AI will apply these settings every time you generate new slides.
-              You can fine tune these further once the slide is generated.
-            </p>
+          {/* Preview Section */}
+          <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-2 w-2 rounded-full bg-gray-300 animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-500">Live Preview</span>
+            </div>
+            <div className="space-y-4">
+              <h1 className="text-xl font-medium text-gray-800">
+                # Large Language Models (LLMs)
+              </h1>
+              <div className="space-y-2 text-gray-700">
+                <p>* AI systems trained on vast text datasets</p>
+                <p>* Tasks: translation, summarization, content generation</p>
+                <p>* Built on transformer architecture</p>
+                <p>* Examples: GPT, BERT, LLaMA</p>
+                <p>* Important considerations: ethics, bias, etc.</p>
+              </div>
+              <div className="flex items-start gap-2 mt-8 text-gray-500 text-sm">
+                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <p>This is an example of how your content will appear with the selected tone and verbosity.</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Preview Section */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <div className="text-gray-500 text-sm mb-2">Preview</div>
-          <div className="space-y-4">
-            <h1 className="text-xl font-medium text-gray-800">
-              # Large Language Models (LLMs)
-            </h1>
-            <div className="space-y-2 text-gray-700">
-              <p>* AI systems trained on vast text datasets</p>
-              <p>* Tasks: translation, summarization, content generation</p>
-              <p>* Built on transformer architecture</p>
-              <p>* Examples: GPT, BERT, LLaMA</p>
-              <p>* Important considerations: ethics, bias, etc.</p>
-            </div>
-            <div className="flex items-start gap-2 mt-8 text-gray-500 text-sm">
-              <Info size={16} className="mt-0.5 flex-shrink-0" />
-              <p>This is dummy text for setting tone and verbosity.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="flex justify-between mt-8 pt-4 border-t">
-        <Button variant="outline" className="text-blue-500">
-          Back
-        </Button>
-        <Button
-          onClick={handleSubmit(async (data) => {
-            try {
-              const response = await axios.post("/api/generate-slides", {
-                data,
-                id,
-              });
-              console.log("Final Submit:", response.data);
-              if (response.data.success) {
-                router.push(`/presentation/${response.data.id}/preview`);
+        {/* Footer */}
+        <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-white/70 backdrop-blur-lg">
+          <Button 
+            variant="ghost" 
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            onClick={handleSubmit(async (data) => {
+              try {
+                setIsGenerating(true);
+                const response = await axios.post("/api/generate-slides", {
+                  data,
+                  id,
+                });
+                if (response.data.success) {
+                  router.push(`/presentation/${response.data.id}/preview`);
+                }
+              } catch (err) {
+                console.error("Submit error:", err);
+                toast.error("Failed to generate slides");
+              } finally {
+                setIsGenerating(false);
               }
-            } catch (err) {
-              console.error("Submit error:", err);
-              toast.error("Failed to save settings.");
-            }
-          })}
-        >
-          Generate slides
-        </Button>
+            })}
+            disabled={isGenerating}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full px-8 py-2.5 text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <SparklesIcon className="h-4 w-4" />
+                Generate slides
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
