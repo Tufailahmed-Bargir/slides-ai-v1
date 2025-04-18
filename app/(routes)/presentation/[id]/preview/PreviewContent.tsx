@@ -1,63 +1,95 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Monitor, Download, ArrowLeft, PlayIcon, Settings, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Monitor, ArrowLeft,  ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SlideCard from "./SlidesCard";
+ 
 
-interface Slide {
-  title: string;
-  content: string[];
-  visuals?: string;
-  layout?: string;
-}
+ 
 
 export default function PreviewContent({ initialData }: { initialData: { id: string; generated_content: string | null; } | null }) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const router = useRouter();
+  // const [isDownloading, setIsDownloading] = useState(false);
+  const [processedContent, setProcessedContent] = useState<{
+    slides: Array<{ title: string; content: string[]; visuals?: string; layout?: string; }>;
+  } | null>(null);
 
-  // Process the content
-  const processedContent: { slides: Slide[] } | null = initialData?.generated_content
-    ? JSON.parse(initialData.generated_content)
-    : null;
+  useEffect(() => {
+    if (initialData?.generated_content) {
+      try {
+        const content = JSON.parse(initialData.generated_content);
+        setProcessedContent(content);
+      } catch (error) {
+        console.error('Error parsing presentation content:', error);
+        toast.error('Error loading presentation content');
+      }
+    }
+  }, [initialData?.generated_content]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    if (!isPreviewMode || !processedContent?.slides) return;
-    
-    if (e.key === "ArrowRight" || e.key === "Space") {
+    if (!isPreviewMode || !processedContent) return;
+
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "Space") {
       setCurrentSlideIndex(prev => Math.min(prev + 1, processedContent.slides.length - 1));
-    } else if (e.key === "ArrowLeft") {
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       setCurrentSlideIndex(prev => Math.max(prev - 1, 0));
     } else if (e.key === "Escape") {
       setIsPreviewMode(false);
     }
-  }, [isPreviewMode, processedContent?.slides]);
+  }, [isPreviewMode, processedContent]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
-  const handleDownload = async () => {
-    if (!processedContent) return;
+  // const handleDownload = async () => {
+  //   if (!initialData?.id) {
+  //     toast.error("Presentation data not found");
+  //     return;
+  //   }
     
-    try {
-      setIsDownloading(true);
-      // TODO: Implement actual download functionality
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success("Presentation downloaded successfully!");
-    } catch (err) {
-      toast.error("Failed to download presentation");
-      console.error("Download error:", err);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+  //   try {
+  //     setIsDownloading(true);
+  //     const response = await axios.post("/api/download-ppt", {
+  //       id: initialData.id
+  //     });
+      
+  //     if (response.data.success) {
+  //       // Convert base64 to Blob
+  //       const byteCharacters = atob(response.data.data);
+  //       const byteNumbers = new Array(byteCharacters.length);
+  //       for (let i = 0; i < byteCharacters.length; i++) {
+  //         byteNumbers[i] = byteCharacters.charCodeAt(i);
+  //       }
+  //       const byteArray = new Uint8Array(byteNumbers);
+  //       const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+
+  //       // Create download link
+  //       const url = window.URL.createObjectURL(blob);
+  //       const a = document.createElement('a');
+  //       a.href = url;
+  //       a.download = response.data.filename;
+  //       document.body.appendChild(a);
+  //       a.click();
+  //       window.URL.revokeObjectURL(url);
+  //       document.body.removeChild(a);
+
+  //       toast.success("Presentation downloaded successfully!");
+  //     } else {
+  //       throw new Error(response.data.message || 'Failed to download presentation');
+  //     }
+  //   } catch (err) {
+  //     console.error("Download error:", err);
+  //     toast.error(err instanceof Error ? err.message : "Failed to download presentation");
+  //   } finally {
+  //     setIsDownloading(false);
+  //   }
+  // };
 
   // Handle loading state
   if (!initialData) {
@@ -87,14 +119,14 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
   if (isPreviewMode) {
     return (
       <div className="fixed inset-0 bg-gray-950 flex items-center justify-center">
-        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+        <div className="absolute top-4 right-4 z-50">
           <Button
             variant="ghost"
             size="icon"
             className="rounded-full text-white hover:bg-white/10 transition-colors"
             onClick={() => setIsPreviewMode(false)}
           >
-            <Settings className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </div>
         
@@ -162,7 +194,7 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
                 <Monitor className="h-4 w-4" />
                 Preview
               </Button>
-              <Button
+              {/* <Button
                 variant="outline"
                 className="rounded-full px-4 py-2 gap-2 hover:bg-gray-50 transition-all"
                 onClick={handleDownload}
@@ -176,17 +208,10 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    Download
+                    Download PPT
                   </>
                 )}
-              </Button>
-              <Button 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full px-6 py-2 shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200"
-                onClick={() => router.push(`/presentation/${initialData.id}/present`)}
-              >
-                <PlayIcon className="h-4 w-4 mr-2" />
-                Present
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

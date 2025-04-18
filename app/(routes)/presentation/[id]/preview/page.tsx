@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import PreviewContent from "./PreviewContent";
+ 
 import prisma from "@/lib/db";
+import PreviewContent from "./PreviewContent";
 
 async function getPresentation(id: string) {
   const presentation = await prisma.presentation.findFirst({

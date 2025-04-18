@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { Info, X, ArrowLeft, SparklesIcon, Loader2 } from "lucide-react";
+import { Info, ArrowLeft, SparklesIcon, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -102,7 +102,7 @@ export default function ToneCalibration({
 
   return (
     <div className="min-h-screen bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-slate-50 via-white to-white p-6">
-      <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-100">
+      <div className="max-w-3xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-100">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-white/70 backdrop-blur-lg sticky top-0 z-50">
           <Tabs defaultValue="calibrate" className="w-full">
@@ -110,6 +110,7 @@ export default function ToneCalibration({
               <TabsTrigger
                 value="content"
                 className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-lg px-4 py-2 transition-all"
+                onClick={() => router.push(`/presentation/${id}/input`)}
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 text-gray-500">
                   <ArrowLeft className="h-4 w-4" />
@@ -127,12 +128,9 @@ export default function ToneCalibration({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <button className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+        <div className="p-6">
           <div className="space-y-8">
             {/* Tone Selection */}
             <div>
@@ -312,42 +310,10 @@ export default function ToneCalibration({
               </p>
             </div>
           </div>
-
-          {/* Preview Section */}
-          <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-2 w-2 rounded-full bg-gray-300 animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-500">Live Preview</span>
-            </div>
-            <div className="space-y-4">
-              <h1 className="text-xl font-medium text-gray-800">
-                # Large Language Models (LLMs)
-              </h1>
-              <div className="space-y-2 text-gray-700">
-                <p>* AI systems trained on vast text datasets</p>
-                <p>* Tasks: translation, summarization, content generation</p>
-                <p>* Built on transformer architecture</p>
-                <p>* Examples: GPT, BERT, LLaMA</p>
-                <p>* Important considerations: ethics, bias, etc.</p>
-              </div>
-              <div className="flex items-start gap-2 mt-8 text-gray-500 text-sm">
-                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <p>This is an example of how your content will appear with the selected tone and verbosity.</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-white/70 backdrop-blur-lg">
-          <Button 
-            variant="ghost" 
-            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+        <div className="flex justify-end p-6 border-t border-gray-100 bg-white/70 backdrop-blur-lg">
           <Button
             onClick={handleSubmit(async (data) => {
               try {

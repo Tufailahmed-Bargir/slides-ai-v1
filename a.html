@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentation List</title>
+  <script>
+    const presentations = [
+      {
+        id: "cm9m8ijx30001ult0lcxios70",
+        generated_content: null,
+        createdAt: "2025-04-18T03:33:29.559Z",
+      },
+      {
+        id: "cm9m8lmlv0003ult0pf9r8rp1",
+        generated_content: null,
+        createdAt: "2025-04-18T03:35:53.012Z",
+      },
+      {
+        id: "cm9m8mttq0005ult0dc1qu6ku",
+        generated_content: {
+          title: "LLM Models",
+          slides: [{ content: ["Large Language Models (LLMs) have revolutionized natural language processing capabilities across various domains.", "Examples: GPT family (LLAMA), Encoder-decoder (T5, BART)", "Key Characteristics: Parameters size (ranges from millions to billions)", "Fine-tuning capabilities"] }]
+        },
+        createdAt: "2025-04-18T03:36:49.022Z",
+      },
+      {
+        id: "cm9m8poto0007ult0n7ltwdc8",
+        generated_content: null,
+        createdAt: "2025-04-18T03:39:02.509Z",
+      },
+    ];
+
+    function formatRelativeTime(dateString) {
+      const now = new Date();
+      const created = new Date(dateString);
+      const diffMs = now - created;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+      if (diffDays > 0) return `Created ${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return `Created about ${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    }
+
+    function handlePreview(id) {
+      window.location.href = `http://localhost:3000/presentation/${id}/preview`;
+    }
+
+    window.onload = function() {
+      const container = document.getElementById('presentation-list');
+      presentations.forEach(presentation => {
+        const div = document.createElement('div');
+        div.classList.add('presentation-card');
+        div.onclick = () => handlePreview(presentation.id);
+
+        const content = document.createElement('div');
+        content.classList.add('presentation-content');
+        
+        if (presentation.generated_content) {
+          const title = document.createElement('h3');
+          title.classList.add('title');
+          title.textContent = presentation.generated_content.title || 'Untitled Presentation';
+          content.appendChild(title);
+
+          const contentText = document.createElement('p');
+          contentText.classList.add('content-text');
+          contentText.textContent = (presentation.generated_content.slides?.[0]?.content?.join(' ') || 'No content available');
+          content.appendChild(contentText);
+        } else {
+          const title = document.createElement('h3');
+          title.classList.add('title');
+          title.textContent = 'Untitled Presentation';
+          content.appendChild(title);
+
+          const placeholder = document.createElement('p');
+          placeholder.classList.add('placeholder');
+          placeholder.innerHTML = 'This slide appears to be a placeholder slide. To create a meaningful slide, please provide:<ul><li>Slide title</li><li>Key content points or information</li><li>Any supporting data or information</li></ul>We help create a professional slide with the information you provide.';
+          content.appendChild(placeholder);
+        }
+
+        const footer = document.createElement('div');
+        footer.classList.add('footer');
+        footer.textContent = formatRelativeTime(presentation.createdAt);
+        
+        div.appendChild(content);
+        div.appendChild(footer);
+
+        container.appendChild(div);
+      });
+    };
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      padding: 20px;
+    }
+
+    #presentation-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .presentation-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .presentation-card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .presentation-content {
+      padding: 16px;
+      min-height: 200px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .content-text {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .placeholder {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .footer {
+      padding: 12px 16px;
+      background-color: #f9fafb;
+      text-align: right;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="presentation-list"></div>
+
+</body>
+</html>
