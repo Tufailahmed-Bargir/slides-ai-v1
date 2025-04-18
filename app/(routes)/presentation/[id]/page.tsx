@@ -17,10 +17,14 @@ import {
 } from "@/components/ui/tooltip";
 import Link from "next/link";
 
-export default function PresentationUI({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = React.use(params);
-    console.log('id is', id);
-    
+export default function PresentationUI({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  console.log("id is", id);
+
   const [activeCategory, setActiveCategory] = useState("BASIC");
 
   return (

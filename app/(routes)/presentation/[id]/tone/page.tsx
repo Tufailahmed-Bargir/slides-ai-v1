@@ -1,4 +1,3 @@
- 
 "use client";
 
 import React, { useState } from "react";
@@ -25,9 +24,13 @@ const formSchema = z.object({
   customTone: z.string().optional(),
 });
 
-export default function ToneCalibration({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = React.use(params);
-    console.log('id is', id);
+export default function ToneCalibration({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  console.log("id is", id);
   const [showCustomTone, setShowCustomTone] = useState(false);
   const router = useRouter();
 
@@ -78,13 +81,14 @@ export default function ToneCalibration({ params }: { params: Promise<{ id: stri
     }
 
     try {
-     const  data={
-        tone,id
-      }
+      const data = {
+        tone,
+        id,
+      };
       const response = await axios.post("/api/set-calibrate-tone", data);
       console.log("Tone response:", response.data);
-      if(response.data.success){
-        toast.success('tone set success!')
+      if (response.data.success) {
+        toast.success("tone set success!");
       }
     } catch (err) {
       console.error("Error setting tone:", err);
@@ -101,7 +105,10 @@ export default function ToneCalibration({ params }: { params: Promise<{ id: stri
       <div className="flex justify-between items-center mb-4">
         <Tabs defaultValue="calibrate" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="content" className="flex items-center gap-2 text-gray-500">
+            <TabsTrigger
+              value="content"
+              className="flex items-center gap-2 text-gray-500"
+            >
               <div className="flex items-center justify-center w-5 h-5 rounded-sm bg-gray-100 text-gray-500">
                 <span className="text-xs">↩</span>
               </div>
@@ -228,11 +235,13 @@ export default function ToneCalibration({ params }: { params: Promise<{ id: stri
                   setValue("verbosity", level, { shouldValidate: true });
 
                   try {
-                    const response = await axios.post("/api/set-calibrate-verbosity", {verbosity: level,id});
+                    const response = await axios.post(
+                      "/api/set-calibrate-verbosity",
+                      { verbosity: level, id },
+                    );
                     console.log("Verbosity saved:", response.data);
-                    if(response.data.success){
-                      toast.success('verbosity set success!')
-                     
+                    if (response.data.success) {
+                      toast.success("verbosity set success!");
                     }
                   } catch (error) {
                     console.error("Error saving verbosity", error);
@@ -300,10 +309,13 @@ export default function ToneCalibration({ params }: { params: Promise<{ id: stri
         <Button
           onClick={handleSubmit(async (data) => {
             try {
-              const response = await axios.post("/api/generate-slides", {data, id});
+              const response = await axios.post("/api/generate-slides", {
+                data,
+                id,
+              });
               console.log("Final Submit:", response.data);
-              if(response.data.success){
-                router.push(`/presentation/${response.data.id}/preview`)
+              if (response.data.success) {
+                router.push(`/presentation/${response.data.id}/preview`);
               }
             } catch (err) {
               console.error("Submit error:", err);

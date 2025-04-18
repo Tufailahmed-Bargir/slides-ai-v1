@@ -1,5 +1,5 @@
 "use client";
-import axios from 'axios'
+import axios from "axios";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,8 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { toast } from 'sonner';
- 
+import { toast } from "sonner";
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -28,9 +27,13 @@ const formSchema = z.object({
   familiarity: z.string().optional(),
 });
 
-export default function PresentationCreator({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = React.use(params);
-    console.log('id is', id);
+export default function PresentationCreator({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  console.log("id is", id);
   const [slideCount, setSlideCount] = useState(1);
   const [showSlideSelector, setShowSlideSelector] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
@@ -56,28 +59,25 @@ export default function PresentationCreator({ params }: { params: Promise<{ id: 
     setShowSlideSelector(false);
   };
 
-  type InputType ={
-    instructions:string,
-    content:string,
-    goal?:string,
-    familiarity?:string,
-    audience?:string,
-    
-
-  }
-  const onSubmit = async (data:InputType) => {
-    console.log('data is');
+  type InputType = {
+    instructions: string;
+    content: string;
+    goal?: string;
+    familiarity?: string;
+    audience?: string;
+  };
+  const onSubmit = async (data: InputType) => {
+    console.log("data is");
     console.log(data);
-   
-    const response = await axios.post('/api/input', {data, id})
 
-    if(response.data.success){
-      toast.success('Input and system instruction saved successfully')
-      router.push(`/presentation/${response.data.id}/tone`)
+    const response = await axios.post("/api/input", { data, id });
+
+    if (response.data.success) {
+      toast.success("Input and system instruction saved successfully");
+      router.push(`/presentation/${response.data.id}/tone`);
     }
-   console.log('response is');
-   console.log(response.data);
-  
+    console.log("response is");
+    console.log(response.data);
   };
 
   return (
@@ -245,8 +245,8 @@ export default function PresentationCreator({ params }: { params: Promise<{ id: 
 
               <div className="min-h-[300px] border rounded-md p-4 space-y-4">
                 <p className="text-gray-500 text-sm">
-                  Tell the AI exactly how to create your slides. You might want to
-                  instruct the AI on:
+                  Tell the AI exactly how to create your slides. You might want
+                  to instruct the AI on:
                 </p>
 
                 <div className="space-y-4 text-sm text-gray-600">
@@ -256,18 +256,18 @@ export default function PresentationCreator({ params }: { params: Promise<{ id: 
                     action”)
                   </p>
                   <p>
-                    Content Focus (“Emphasize cost savings”, “Include specific use
-                    cases”, “Compare our solution with competitors”, “Show
+                    Content Focus (“Emphasize cost savings”, “Include specific
+                    use cases”, “Compare our solution with competitors”, “Show
                     before/after results”)
                   </p>
                   <p>
-                    Presentation Style (“Use data visualizations where relevant”,
-                    “Include thought-provoking questions”, “Limit text on each
-                    slide”)
+                    Presentation Style (“Use data visualizations where
+                    relevant”, “Include thought-provoking questions”, “Limit
+                    text on each slide”)
                   </p>
                   <p>
-                    Layout (“Use a 2x2 comparison table to show features”, “Create
-                    a timeline layout”, “Organize content in 3 columns”)
+                    Layout (“Use a 2x2 comparison table to show features”,
+                    “Create a timeline layout”, “Organize content in 3 columns”)
                   </p>
                 </div>
 
@@ -354,10 +354,7 @@ export default function PresentationCreator({ params }: { params: Promise<{ id: 
 
           {/* Footer */}
           <div className="flex justify-end p-4 border-t">
-            <Button
-              type="submit"
-              className="flex items-center gap-2"
-            >
+            <Button type="submit" className="flex items-center gap-2">
               Tone and Verbosity
             </Button>
 
