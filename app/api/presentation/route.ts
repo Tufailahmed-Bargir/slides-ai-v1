@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
-    // @ts-expect-error some-type-error
+  
     const { email } = session?.user;
 
     const data = await req.json();
