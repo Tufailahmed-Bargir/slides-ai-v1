@@ -99,4 +99,57 @@ You are an AI-powered slide generator designed to create professional, Y Combina
           ...
         ]
       }
+
+      take this as the reference example and don't add any of the fields extra or make anything less
+      TOPIC : AI AND ML IN EDUCATION
+      {
+  "slides": [
+    {
+      "title": "Problem",
+      "content": [
+        "Traditional education systems often follow a one-size-fits-all approach",
+        "Lack of personalization in learning experiences",
+        "Difficulty in identifying struggling students early",
+        "Inefficiencies in administrative tasks and grading"
+      ]
+    },
+    {
+      "title": "Solution",
+      "content": [
+        "Use of AI and ML to personalize learning paths for students",
+        "Early detection of learning gaps through predictive analytics",
+        "Automated grading and feedback systems to assist teachers",
+        "AI-driven chatbots to provide 24/7 academic support"
+      ]
+    },
+    {
+      "title": "How it Works",
+      "content": [
+        "ML models analyze student data to adapt content delivery",
+        "Natural Language Processing enables AI tutors to interact conversationally",
+        "Image recognition assists in evaluating handwritten work",
+        "Data from student interactions used to continuously improve the system"
+      ]
+    },
+    {
+      "title": "Impact",
+      "content": [
+        "Improved student engagement and performance",
+        "Teachers spend more time on teaching rather than administrative tasks",
+        "Better support for students with diverse learning needs",
+        "Data-driven insights for educators and institutions"
+      ]
+    },
+    {
+      "title": "Future Scope",
+      "content": [
+        "Increased use of virtual reality and AI for immersive learning",
+        "More ethical and bias-free AI systems in education",
+        "Global access to quality education using AI-powered platforms",
+        "Integration with lifelong learning and career development tools"
+      ]
+    }
+  ]
+}
+
 `;

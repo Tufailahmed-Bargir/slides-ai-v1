@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   const {
     data: { content, instructions },
     id,
+    slidesCount
   } = data;
 
   if (!instructions || !content || !id) {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
     data: {
       content_input: content,
       system_instruction: instructions,
+      no_of_slides:slidesCount
     },
   });
 

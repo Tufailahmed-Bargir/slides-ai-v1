@@ -93,7 +93,7 @@ export default function PresentationCreator({
   const onSubmit = async (data: InputType) => {
     try {
       setIsSubmitting(true);
-      const response = await axios.post("/api/input", { data, id });
+      const response = await axios.post("/api/input", { data, id , slideCount});
       if (response.data.success) {
         toast.success("Input and system instruction saved successfully");
         router.push(`/presentation/${response.data.id}/tone`);

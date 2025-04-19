@@ -37,6 +37,7 @@ model Presentation{
   familiarity String?
   presentation_id String?
   generated_content String?
+  no_of_slides Int?
   // relation here
   userId String
   user User @relation(fields: [userId], references: [id])
