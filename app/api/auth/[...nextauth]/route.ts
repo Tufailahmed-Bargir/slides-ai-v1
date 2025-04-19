@@ -1,9 +1,10 @@
-// import prisma from "@/lib/db";
-import prisma, { getUserByEmail } from "@/lib/db"; // Import getUserByEmail
+ 
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials"; // Import CredentialsProvider
-import bcrypt from "bcrypt"; // Import bcrypt
+import CredentialsProvider from "next-auth/providers/credentials";  
+import bcrypt from 'bcrypt'
+import prisma from "@/lib/db";
+ 
 
 const handler = NextAuth({
   providers: [
@@ -20,34 +21,46 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null; // Or throw an error
+          
+          throw new Error("Email and password are required.");
         }
 
-        const user = await getUserByEmail(credentials.email);
-        if (!user) {
-          // User not found by the custom-login check, should ideally not happen if frontend calls custom-login first
-          // but handle defensively.
-          // Alternatively, you could throw an error here.
-          return null;
-        }
+        try {
+           const userExists = await prisma.user.findUnique({
+            where:{email:credentials?.email}
+           })
+          if (!userExists) {
+            console.log(`Login attempt failed: User ${credentials.email} not found.`);
+            throw new Error("No user found with this email. Please sign up.");
+          }
 
-        // Ensure user has a password (they might have signed up via Google)
-        if (!user.pass) { // Use user.pass based on schema
-           throw new Error("Please log in using the method you originally signed up with.");
-        }
+         
+         
+          const verifyPassword = await bcrypt.compare(credentials.password,userExists.pass, )
 
-        const isValid = await bcrypt.compare(credentials.password, user.pass); // Use user.pass
-        if (!isValid) {
-          throw new Error("Invalid password");
-        }
+          if(!verifyPassword){
+            console.log(`Login attempt failed: invalid password`);
+            throw new Error("Please provide the correct pasword");
+          }
 
-        // Return only necessary user fields for the session/token
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
+        
+
+         
+          return {
+            id: userExists.id,
+            name: userExists.name,
+            email: userExists.email,
+            
+          };
+
+        } catch (error) {
+          console.error("Error in authorize function:", error);
+           
+          if (error instanceof Error) {
+            throw new Error(error.message || "Authentication failed");
+          }
+          throw new Error("An unknown error occurred during authorization.");
+        }
       },
     }),
   ],
@@ -79,10 +92,11 @@ const handler = NextAuth({
         return true; // Allow Google sign-in
       }
 
-      // Handle Credentials Sign in - User should already exist or be created by custom-login
+      // Handle Credentials Sign in - User MUST exist now
       if (account?.provider === "credentials") {
         // The authorize function already validated the user and password
-        return true; // Allow credentials sign-in
+        // We just need to ensure a user object was returned (authorize didn't throw/return null)
+        return !!user; // Allow credentials sign-in only if authorize returned a user
       }
 
       // Default deny if none of the above conditions are met
@@ -94,6 +108,9 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id;
         // Add any other user properties you want in the token
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;
       }
       return token;
     },
@@ -102,6 +119,9 @@ const handler = NextAuth({
       if (token.id && session.user) {
         session.user.id = token.id as string;
         // Add any other properties from the token to the session user
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
       }
       return session;
     },

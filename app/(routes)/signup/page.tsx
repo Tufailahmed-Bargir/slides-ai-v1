@@ -1,40 +1,32 @@
 "use client";
 
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Loader2 } from "lucide-react"; // Added User icon
 import { signIn, useSession } from "next-auth/react";
-import { toast  } from "sonner";
-// Remove redirect import from next/navigation as we'll use router.push
-import { useRouter } from "next/navigation"; 
+import { toast } from "sonner";
+import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link"; // Import Link
-// Import useEffect
-import { useState, FormEvent, useEffect } from "react"; 
+import Link from "next/link"; // Added Link
+import { useState, FormEvent } from "react";
 import { z } from "zod";
 
-// Define Zod schema for login form
-const loginSchema = z.object({
+// Define Zod schema for signup form
+const signupSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }), // Added name field
   email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(1, { message: "Password is required" }), // Min 1 for login
+  password: z.string().min(5, { message: "Password must be at least 5 characters" }),
 });
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [name, setName] = useState(""); // Added name state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string[]; password?: string[] }>({});
+  const [errors, setErrors] = useState<{ name?: string[]; email?: string[]; password?: string[] }>({});
 
-  // Use useEffect for redirection based on session status
-  useEffect(() => {
-    // Redirect to dashboard if the user is already authenticated
-    if (status === 'authenticated' && session?.user) {
-      router.push('/dashboard');
-    }
-  }, [status, session, router]); // Dependencies for the effect
-
-  // Show loading indicator while session status is being determined
+  // Redirect if already logged in or during initial session check
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -42,36 +34,29 @@ export default function LoginPage() {
       </div>
     );
   }
-
-  // If status is not loading and not authenticated, render the login form
-  // The useEffect above handles the authenticated case
+  if (session?.user) {
+    redirect("/dashboard");
+  }
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    setErrors({}); // Clear errors on Google sign-in attempt
+    setErrors({});
     try {
-      // No need to call custom-login for Google
       const result = await signIn("google", {
-        redirect: false, // Important: handle redirect manually
+        redirect: false,
         callbackUrl: "/dashboard",
       });
-
       if (result?.error) {
         toast.error(`Google Sign-In Failed: ${result.error}`);
-        console.error("Google Authentication error:", result.error);
         setIsGoogleLoading(false);
       } else if (result?.ok && !result.error) {
-        // Successful sign in, redirect
         router.push(result.url || "/dashboard");
-        // No need to set loading false here as page navigates away
       } else {
-        // Handle unexpected cases
         toast.error("Google Sign-In failed. Please try again.");
         setIsGoogleLoading(false);
       }
     } catch (error) {
-      toast.error("An unexpected error occurred during Google Sign-In");
-      console.error("Unexpected error during Google authentication:", error);
+      toast.error("An unexpected error occurred during Google Sign-In", error);
       setIsGoogleLoading(false);
     }
   };
@@ -82,7 +67,7 @@ export default function LoginPage() {
     setErrors({});
     toast.dismiss();
 
-    const validationResult = loginSchema.safeParse({ email, password });
+    const validationResult = signupSchema.safeParse({ name, email, password });
 
     if (!validationResult.success) {
       const formattedErrors = validationResult.error.flatten().fieldErrors;
@@ -91,46 +76,41 @@ export default function LoginPage() {
       return;
     }
 
-    const { email: validatedEmail, password: validatedPassword } = validationResult.data;
+    const { name: validatedName, email: validatedEmail, password: validatedPassword } = validationResult.data;
 
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: validatedEmail,
-        password: validatedPassword,
-        callbackUrl: "/dashboard",
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: validatedName, email: validatedEmail, password: validatedPassword }),
       });
 
-      if (result?.error) {
-        // Use the specific error message from the authorize function if available
-        const errorMessage = result.error === "CredentialsSignin" 
-          ? "Invalid email or password. Please check your credentials." // Updated message
-          : result.error; // Use the error message thrown from authorize
+      const data = await response.json();
 
-        toast.error("Login Failed", {
-          description: errorMessage,
+      if (!response.ok) {
+        toast.error("Sign Up Failed", {
+          description: data.message || "An error occurred during sign up.",
         });
-        
-        console.error("Credentials Authentication error:", result.error); // Log the original error too
-        setIsLoading(false);
-      } else if (result?.ok && !result.error) {
-        toast.success("Login Successful", {
-          description: "Redirecting to dashboard...",
-        });
-        // Use router.push for client-side navigation after successful sign-in
-        router.push("/dashboard"); 
       } else {
-        toast.error("Login Failed", {
-          description: "An unexpected error occurred. Please try again.",
+        toast.success("Sign Up Successful", {
+          description: "Account created! Redirecting to login...", // Updated description
         });
-        setIsLoading(false);
+        // Redirect to login page after a short delay to allow toast to be seen
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500); // Adjust delay as needed
+
+        // Clear form (optional, as redirect happens)
+        setName("");
+        setEmail("");
+        setPassword("");
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "An unexpected error occurred during login.";
-      toast.error("Login Error", {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred.";
+      toast.error("Sign Up Error", {
         description: message,
       });
-      console.error("Login error:", error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -138,84 +118,95 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 px-4">
       <div className="w-full max-w-4xl flex rounded-2xl shadow-2xl overflow-hidden bg-white">
-        {/* Left Side - Login Form */}
+        {/* Left Side - Signup Form */}
         <div className="w-full md:w-1/2 p-8 lg:p-12">
-          <div className="space-y-6"> {/* Adjusted spacing */}
+          <div className="space-y-6"> {/* Reduced vertical spacing */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome back!
+                Create your account
               </h2>
-              <p className="text-gray-600">Sign in to continue</p> {/* Reverted text */}
+              <p className="text-gray-600">Join us and start creating!</p>
             </div>
 
-            <form className="space-y-5" onSubmit={handleSubmit}> {/* Adjusted spacing */}
-              {/* ... existing email input ... */}
+            <form className="space-y-4" onSubmit={handleSubmit}> {/* Reduced form spacing */}
+              {/* Name Input */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="text-sm font-medium text-gray-700 block mb-1.5"
-                >
+                <label htmlFor="name" className="text-sm font-medium text-gray-700 block mb-1.5">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors({ ...errors, name: undefined });
+                    }}
+                    disabled={isLoading || isGoogleLoading}
+                    className={`w-full px-4 py-2.5 pl-10 rounded-lg border ${errors.name ? 'border-red-500' : 'border-gray-200'} focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed`}
+                    placeholder="Enter your full name"
+                    aria-invalid={!!errors.name}
+                    aria-describedby="name-error"
+                  />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                </div>
+                {errors.name && (
+                  <p id="name-error" className="mt-1 text-xs text-red-600">{errors.name[0]}</p>
+                )}
+              </div>
+
+              {/* Email Input */}
+              <div>
+                <label htmlFor="email" className="text-sm font-medium text-gray-700 block mb-1.5">
                   Email address
                 </label>
                 <div className="relative">
                   <input
                     id="email"
                     type="email"
-                    value={email} // Bind value
+                    value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      if (errors.email) setErrors({ ...errors, email: undefined }); // Clear error on change
+                      if (errors.email) setErrors({ ...errors, email: undefined });
                     }}
-                    disabled={isLoading || isGoogleLoading} // Disable when loading
+                    disabled={isLoading || isGoogleLoading}
                     className={`w-full px-4 py-2.5 pl-10 rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-200'} focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed`}
                     placeholder="Enter your email"
                     aria-invalid={!!errors.email}
                     aria-describedby="email-error"
                   />
-                  <Mail
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    size={18}
-                  />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 </div>
                 {errors.email && (
-                  <p id="email-error" className="mt-1 text-xs text-red-600">
-                    {errors.email[0]} {/* Display first email error */}
-                  </p>
+                  <p id="email-error" className="mt-1 text-xs text-red-600">{errors.email[0]}</p>
                 )}
               </div>
 
-              {/* ... existing password input ... */}
+              {/* Password Input */}
               <div>
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-gray-700 block mb-1.5"
-                >
+                <label htmlFor="password" className="text-sm font-medium text-gray-700 block mb-1.5">
                   Password
                 </label>
                 <div className="relative">
                   <input
                     id="password"
                     type="password"
-                    value={password} // Bind value
+                    value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      if (errors.password) setErrors({ ...errors, password: undefined }); // Clear error on change
+                      if (errors.password) setErrors({ ...errors, password: undefined });
                     }}
-                    disabled={isLoading || isGoogleLoading} // Disable when loading
+                    disabled={isLoading || isGoogleLoading}
                     className={`w-full px-4 py-2.5 pl-10 rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-200'} focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed`}
                     placeholder="Enter your password"
                     aria-invalid={!!errors.password}
                     aria-describedby="password-error"
                   />
-                  <Lock
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    size={18}
-                  />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 </div>
-                 {errors.password && (
-                  <p id="password-error" className="mt-1 text-xs text-red-600">
-                    {errors.password[0]} {/* Display first password error */}
-                  </p>
+                {errors.password && (
+                  <p id="password-error" className="mt-1 text-xs text-red-600">{errors.password[0]}</p>
                 )}
               </div>
 
@@ -225,38 +216,30 @@ export default function LoginPage() {
                 className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                {isLoading ? "Signing In..." : "Sign In"} {/* Reverted text */}
+                {isLoading ? "Creating Account..." : "Sign Up with Email"}
               </button>
             </form>
 
-            {/* ... existing 'Or continue with' divider ... */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">
-                  Or continue with
-                </span>
+                <span className="px-4 bg-white text-gray-500">Or sign up with</span>
               </div>
             </div>
 
-            {/* ... existing Google sign in button ... */}
+            {/* Google Sign In Button */}
             <div className="flex justify-center">
               <button
                 onClick={handleGoogleSignIn}
-                disabled={isLoading || isGoogleLoading} // Disable when loading
+                disabled={isLoading || isGoogleLoading}
                 className="flex items-center justify-center gap-2 py-3 px-6 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-150 w-full disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isGoogleLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin mr-2 text-gray-700" />
                 ) : (
-                  <Image
-                    src="/google-img.png"
-                    alt="Google"
-                    width={20}
-                    height={20}
-                  />
+                  <Image src="/google-img.png" alt="Google" width={20} height={20} />
                 )}
                 <span className="text-sm font-medium text-gray-700">
                   {isGoogleLoading ? "Processing..." : "Continue with Google"}
@@ -264,17 +247,17 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Link to Signup */}
+            {/* Link to Login */}
             <p className="text-center text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-700">
-                Sign up
+              Already have an account?{' '}
+              <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+                Sign in
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Right Side - Image/Branding (Copied from Signup) */}
+        {/* Right Side - Image/Branding (Same as Login) */}
         <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-600 p-12">
           <div className="h-full flex flex-col justify-center">
             <div className="text-white space-y-6">
@@ -291,7 +274,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    {/* <Toaster position="bottom-right" richColors /> */}
     </div>
   );
 }
