@@ -10,13 +10,20 @@ import {
   ChevronDown,
   Loader2,
   ArrowRight,
+  LogOut, // Import LogOut icon
 } from "lucide-react"
 import Link from "next/link"
 import axios from "axios"
 import { redirect, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react" // Import signOut
 import Loader from "@/app/Components/Loader"
 import { useState, useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu" // Import Dropdown components
 
 export default function PresentationDashboard() {
   const router = useRouter()
@@ -127,22 +134,32 @@ export default function PresentationDashboard() {
     <div className="flex h-screen bg-gray-50">
       {/* Left Sidebar */}
       <div className="w-[320px] border-r border-gray-200 bg-white shadow-sm flex flex-col">
-        {/* User Profile */}
-        <div className="p-6 flex items-center gap-3 border-b border-gray-100 group hover:bg-gray-50 transition-colors cursor-pointer">
-          <Avatar className="h-11 w-11 ring-2 ring-white shadow-md">
-            <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-            <AvatarFallback className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
-              {session?.user?.name?.[0]?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-gray-900 font-medium text-sm">{session?.user?.name || "User"}</span>
-            <span className="text-gray-500 text-xs">Premium User</span>
-          </div>
-          <div className="ml-auto p-1 rounded-full group-hover:bg-gray-100 transition-colors">
-            <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-          </div>
-        </div>
+        {/* User Profile with Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="p-6 flex items-center gap-3 border-b border-gray-100 group hover:bg-gray-50 transition-colors cursor-pointer">
+              <Avatar className="h-11 w-11 ring-2 ring-white shadow-md">
+                <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
+                <AvatarFallback className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
+                  {session?.user?.name?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="text-gray-900 font-medium text-sm">{session?.user?.name || "User"}</span>
+                <span className="text-gray-500 text-xs">Premium User</span>
+              </div>
+              <div className="ml-auto p-1 rounded-full group-hover:bg-gray-100 transition-colors">
+                <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+              </div>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Create Button */}
         <div className="px-4 py-5">
