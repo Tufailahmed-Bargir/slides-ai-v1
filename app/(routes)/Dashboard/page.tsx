@@ -1,17 +1,15 @@
- 
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
 import {
   LayoutGrid,
   MonitorPlay,
   ChevronDown,
   Loader2,
-  
   ArrowRight,
- 
 } from "lucide-react"
 import Link from "next/link"
 import axios from "axios"
@@ -84,8 +82,7 @@ export default function PresentationDashboard() {
     })
   }
 
-  // Function to extract title from generated content if available
-   
+  // Function to extract title from generated content if available 
   const extractTitle = (presentation) => {
     if (!presentation.content_input && !presentation.generated_content) {
       return "Untitled Presentation"
@@ -102,8 +99,7 @@ export default function PresentationDashboard() {
           return content.slides[0].title
         }
       } catch (e) {
-        console.log('error found', e);
-        
+        console.log('error found', e)
         // If parsing fails, return default
       }
     }
@@ -120,8 +116,7 @@ export default function PresentationDashboard() {
           return content.slides.length
         }
       } catch (e) {
-        console.log('error found', e);
-        
+        console.log('error found', e)
         // If parsing fails, return default
       }
     }
@@ -198,33 +193,69 @@ export default function PresentationDashboard() {
               </Link>
             </div>
           ) : (
-            // Presentation Grid with Cards
+     
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {presentations.map((presentation) => (
-                <Link
+      {presentations.map((presentation) => {
+        // Generate a random pastel color for cards without background images
+        
+        return (
+          <Link
                   key={presentation.id}
                   href={`/presentation/${presentation.id}/preview`}
                   className="block group"
                 >
-                  <Card className="h-full overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 group-hover:shadow-xl">
-                    <CardContent className="p-6 flex flex-col gap-3">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {extractTitle(presentation)}
-                      </h3>
-                      <div className="text-sm text-gray-500">
-                        <p>
-                          {formatDate(new Date(presentation.createdAt))} | {extractSlideCount(presentation)}{" "}
-                          slides
-                        </p>
+                  <Card className="h-full overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+                    <CardContent className="p-6">
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
+                            {extractTitle(presentation)}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <span>{formatDate(new Date(presentation.createdAt))}</span>
+                            <span>•</span>
+                            <span>{extractSlideCount(presentation)} slides</span>
+                          </div>
+                        </div>
+                        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg">
+                          <MonitorPlay className="w-5 h-5 text-blue-600" />
+                        </div>
+                      </div>
+                      
+                      {/* Preview Section */}
+                      <div className="mt-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl aspect-video relative overflow-hidden transition-all duration-300">
+                        <div className="absolute inset-0">
+                          <Image 
+                            src="/ppt.png"
+                            alt="Presentation preview"
+                            fill 
+                            className="object-contain    duration-300 cover"
+                          />
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center p-4">
+                          <div className="space-y-2.5 w-full max-w-[80%]">
+                            <div className="h-1.5 bg-gray-200/80 rounded-full w-full group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                            <div className="h-1.5 bg-gray-200/80 rounded-full w-4/5 group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                            <div className="h-1.5 bg-gray-200/80 rounded-full w-2/3 group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 flex justify-end">
+                        <div className="flex items-center text-blue-600 group-hover:text-blue-700 font-medium">
+                          <span>View Presentation</span>
+                          <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex justify-end text-blue-600 group-hover:text-blue-700">
-                      <ArrowRight className="w-5 h-5" />
-                    </CardFooter>
                   </Card>
                 </Link>
-              ))}
-            </div>
+        )
+      })}
+    </div>
           )}
         </div>
       </div>

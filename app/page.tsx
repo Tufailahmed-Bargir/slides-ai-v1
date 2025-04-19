@@ -78,15 +78,19 @@ const LandingPage = () => {
               </div>
 
               <div className="flex items-center gap-3">
+                <Link href={'/login'}>
                 <Button
                   variant="outline"
                   className="rounded-full border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300"
-                >
+                  >
                   Log in
                 </Button>
+                  </Link>
+                  <Link href={'/login'}>
                 <Button className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white shadow-lg shadow-blue-500/20 border-0">
                   Get Started <ArrowUpRight className="ml-1 h-4 w-4" />
                 </Button>
+                </Link>
               </div>
             </div>
 
@@ -178,15 +182,20 @@ const LandingPage = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
+                <Link href={'/login'}>
                 <Button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white px-8 py-6 rounded-full text-lg shadow-lg shadow-blue-500/20 transition-all duration-300 hover:shadow-xl">
                   Try for Free <ArrowRight className="ml-2" size={20} />
                 </Button>
+                </Link>
+                
+                <Link href={'#demo'}>
                 <Button
                   variant="outline"
                   className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-6 rounded-full text-lg transition-all duration-300 flex items-center gap-2"
-                >
+                  >
                   <Play className="w-5 h-5 fill-blue-600 text-blue-600" /> Watch Demo
                 </Button>
+                  </Link>
               </div>
 
               <div className="flex items-center gap-4 text-gray-600">
@@ -194,9 +203,8 @@ const LandingPage = () => {
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-sm">
                       <Image
-                        // src={`/placeholder.svg?height=40&width=40&text=User${i}`}
-                        // alt={`User ${i}`}
-                        src={`/placeholder.svg?height=40&width=40&text=User${i}`}
+                         
+                        src={`/user1.png`}
                         alt={`User ${i}`}
                         width={40}
                         height={40}

@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import Image from "next/image";
+ 
 
 const formSchema = z.object({
   content: z.string().min(1, "Input content cannot be Empty"),
@@ -291,9 +291,8 @@ export default function PresentationCreator({
                           className="group relative aspect-square rounded-xl border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center hover:border-blue-400 transition-colors"
                         >
                           {file.file.type.startsWith('image/') ? (
-                            <Image
-                            width={40} 
-                            height={40}
+                            // Use regular img tag for blob URLs instead of Next.js Image component
+                            <img
                               src={file.preview} 
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
