@@ -21,9 +21,9 @@ import Link from "next/link";
 export default function PresentationUI({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = React.use(params);
+  const { id } = params;
   const [activeCategory, setActiveCategory] = useState("BASIC");
 
   return (

@@ -5,7 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 import { toast, Toaster } from "sonner";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState, FormEvent } from "react"; // Import useState and FormEvent
+import { useState, FormEvent, useEffect } from "react"; // Import useState, FormEvent, and useEffect
 import { z } from "zod"; // Import Zod
 
 // Define Zod schema for login form
@@ -22,6 +22,13 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string[]; password?: string[] }>({}); // State for validation errors
+
+  // Clear token on initial load if not authenticated
+  useEffect(() => {
+    if (status !== 'loading' && !session) {
+      localStorage.removeItem('jwtToken');
+    }
+  }, [session, status]);
 
   // Redirect if already logged in or during initial session check
   if (status === "loading") {
@@ -40,6 +47,8 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     setErrors({}); // Clear errors on Google sign-in attempt
     try {
+      // Clear any existing custom token on Google sign-in attempt
+      localStorage.removeItem('jwtToken');
       // No need to call custom-login for Google
       const result = await signIn("google", {
         redirect: false, // Important: handle redirect manually
@@ -71,6 +80,7 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrors({}); // Clear previous errors
     toast.dismiss(); // Dismiss previous toasts
+    localStorage.removeItem('jwtToken'); // Clear previous token attempt
 
     // Validate form data with Zod
     const validationResult = loginSchema.safeParse({ email, password });
@@ -89,19 +99,29 @@ export default function LoginPage() {
     const validatedPassword = validationResult.data.password;
 
     try {
-      // 1. Call custom-login to ensure user exists or create them
+      // 1. Call custom-login to ensure user exists or create them AND get JWT
       const customLoginRes = await fetch("/api/auth/custom-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: validatedEmail, password: validatedPassword }), // Use validated data
       });
 
+      const customLoginData = await customLoginRes.json(); // Always parse JSON
+
       if (!customLoginRes.ok) {
-        const errorData = await customLoginRes.json();
-        throw new Error(errorData.error || "Failed to prepare login.");
+        // Use error message from API response if available
+        throw new Error(customLoginData.error || customLoginData.errors || "Failed to prepare login.");
       }
 
-      // 2. Sign in using NextAuth credentials provider
+      // Store the JWT token if received
+      if (customLoginData.token) {
+        localStorage.setItem('jwtToken', customLoginData.token);
+        console.log("JWT Token stored in localStorage."); // For debugging
+      } else {
+         console.warn("No JWT token received from custom-login endpoint."); // For debugging
+      }
+
+      // 2. Sign in using NextAuth credentials provider (this establishes the session cookie)
       const result = await signIn("credentials", {
         redirect: false, // Handle redirect manually
         email: validatedEmail, // Use validated data
@@ -110,26 +130,38 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        // Handle specific errors from authorize
+        // Handle errors specifically
         if (result.error === "CredentialsSignin") {
-          toast.error("Invalid email or password.");
+          toast.error("Login Failed", {
+            description: "Invalid email or password. Please try again.",
+          });
         } else {
-          toast.error(result.error); // Display error from NextAuth (e.g., "User not found", "Invalid password")
+          toast.error("Login Error", {
+            description: result.error, // Display specific error from NextAuth
+          });
         }
         console.error("Credentials Authentication error:", result.error);
         setIsLoading(false);
       } else if (result?.ok && !result.error) {
         // Successful sign in, redirect
+        toast.success("Login Successful", {
+          description: "Redirecting to dashboard...",
+        });
         router.push(result.url || "/dashboard");
         // No need to set loading false here as page navigates away
       } else {
         // Handle unexpected cases
-        toast.error("Login failed. Please try again.");
+        toast.error("Login Failed", {
+          description: "An unexpected error occurred. Please try again.",
+        });
         setIsLoading(false);
       }
     } catch (error) { // Use implicit 'unknown' or 'Error' type instead of 'any'
-      const message = error instanceof Error ? error.message : "An unexpected error occurred";
-      toast.error(message);
+      localStorage.removeItem('jwtToken'); // Clear token on error
+      const message = error instanceof Error ? error.message : "An unexpected error occurred during login.";
+      toast.error("Login Error", {
+        description: message,
+      });
       console.error("Login error:", error);
       setIsLoading(false);
     }

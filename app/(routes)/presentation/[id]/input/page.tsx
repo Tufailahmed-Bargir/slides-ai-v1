@@ -31,9 +31,12 @@ const formSchema = z.object({
 export default function PresentationCreator({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  // Correct the type: params is an object, not a Promise in client components
+  // when using dynamic routes like [id]
+  params: { id: string };
 }) {
-  const { id } = React.use(params); // Corrected type: params is an object, not a Promise
+  // Remove React.use() and directly destructure id from params
+  const { id } = params;
 
   // const { id } = params; // Directly destructure id from params
   const [slideCount, setSlideCount] = useState(1);
@@ -98,11 +101,19 @@ export default function PresentationCreator({
       setIsSubmitting(true);
       const response = await axios.post("/api/input", { data, id , slideCount});
       if (response.data.success) {
-        toast.success("Input and system instruction saved successfully");
+        toast.success("Input Saved", {
+          description: "Your presentation input and instructions have been saved successfully.",
+        });
         router.push(`/presentation/${response.data.id}/tone`);
+      } else {
+        toast.error("Save Failed", {
+          description: response.data.msg || "Could not save presentation input.",
+        });
       }
     } catch (error) {
-      toast.error("Failed to save input");
+      toast.error("Save Error", {
+        description: "An unexpected error occurred while saving the input.",
+      });
       console.error("Error:", error);
     } finally {
       setIsSubmitting(false);

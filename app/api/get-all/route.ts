@@ -3,6 +3,8 @@ import {  NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth"; // update this path as per your setup
 
+export const dynamic = 'force-dynamic'; // Mark the route as dynamic
+
 export async function GET( ) {
   try {
     const session = await getServerSession( );

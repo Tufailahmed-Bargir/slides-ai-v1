@@ -27,9 +27,12 @@ const formSchema = z.object({
 export default function ToneCalibration({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  // Correct the type: params is an object, not a Promise in client components
+  // when using dynamic routes like [id]
+  params: { id: string };
 }) {
-  const { id } = React.use(params);
+  // Remove React.use() and directly destructure id from params
+  const { id } = params;
   const [showCustomTone, setShowCustomTone] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
@@ -80,17 +83,23 @@ export default function ToneCalibration({
       setValue("customTone", "");
     }
 
+    const customToneValue = watch("customTone"); // Get custom tone value from form state
+
     try {
-      const data = {
-        tone,
+      const response = await axios.post("/api/set-calibrate-tone", {
+        tone: selectedTone === "Custom" ? customToneValue : selectedTone,
         id,
-      };
-      const response = await axios.post("/api/set-calibrate-tone", data);
+      });
       console.log("Tone response:", response.data);
       if (response.data.success) {
-        toast.success("tone set success!");
+        toast.success("Tone Updated", {
+          description: `Presentation tone set to ${selectedTone === "Custom" ? customToneValue : selectedTone}.`,
+        });
       }
     } catch (err) {
+      toast.error("Tone Update Failed", {
+        description: "Could not save the selected tone.",
+      });
       console.error("Error setting tone:", err);
     }
   };
@@ -258,13 +267,19 @@ export default function ToneCalibration({
                         { verbosity: level, id },
                       );
                       if (response.data.success) {
-                        toast.success("Verbosity level updated", {
-                          description: `Set to ${verbosityLabels[level]}`,
+                        toast.success("Verbosity Updated", {
+                          description: `Verbosity level set to ${verbosityLabels[level]}.`,
+                        });
+                      } else {
+                        toast.error("Verbosity Update Failed", {
+                          description: "Could not save the verbosity level.",
                         });
                       }
                     } catch (error) {
                       console.error("Error saving verbosity", error);
-                      toast.error("Failed to update verbosity level");
+                      toast.error("Verbosity Update Error", {
+                        description: "An unexpected error occurred while saving verbosity.",
+                      });
                     }
                   }}
                   className="my-6"
@@ -315,19 +330,28 @@ export default function ToneCalibration({
         {/* Footer */}
         <div className="flex justify-end p-6 border-t border-gray-100 bg-white/70 backdrop-blur-lg">
           <Button
-            onClick={handleSubmit(async (data) => {
+            onClick={handleSubmit(async () => {
               try {
                 setIsGenerating(true);
                 const response = await axios.post("/api/generate-slides", {
-                  data,
+                  // Pass necessary data, potentially form data and id
                   id,
                 });
                 if (response.data.success) {
+                  toast.success("Generation Started", {
+                    description: "AI is generating your slides. Redirecting to preview...",
+                  });
                   router.push(`/presentation/${response.data.id}/preview`);
+                } else {
+                  toast.error("Generation Failed", {
+                    description: response.data.msg || "Could not start slide generation.",
+                  });
                 }
               } catch (err) {
                 console.error("Submit error:", err);
-                toast.error("Failed to generate slides");
+                toast.error("Generation Error", {
+                  description: "An unexpected error occurred during slide generation.",
+                });
               } finally {
                 setIsGenerating(false);
               }

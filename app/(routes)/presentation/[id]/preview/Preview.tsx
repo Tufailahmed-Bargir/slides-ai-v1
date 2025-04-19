@@ -37,9 +37,13 @@ export default function Preview({ initialData }: PreviewProps) {
       setIsDownloading(true);
       // TODO: Implement actual download functionality
       await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success("Presentation downloaded successfully!");
+      toast.success("Download Successful", {
+        description: "Presentation downloaded successfully!",
+      });
     } catch (err) {
-      toast.error("Failed to download presentation");
+      toast.error("Download Failed", {
+        description: "Failed to download the presentation. Please try again.",
+      });
       console.error("Download error:", err);
     } finally {
       setIsDownloading(false);

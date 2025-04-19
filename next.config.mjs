@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   images: {
     domains: ['localhost'], // Add localhost to the domains array

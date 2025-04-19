@@ -89,7 +89,9 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
   // Save changes function
   const handleSaveChanges = async () => {
     if (!initialData?.id || !editedContent) {
-      toast.error("Cannot save. Presentation data is missing.");
+      toast.error("Save Error", {
+        description: "Cannot save. Presentation data is missing or invalid.",
+      });
       return;
     }
     setIsSaving(true);
@@ -98,14 +100,20 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
         generated_content: JSON.stringify(editedContent),
       });
       if (response.data.success) {
-        toast.success("Changes saved successfully!");
+        toast.success("Changes Saved", {
+          description: "Your edits have been saved successfully!",
+        });
         // Optionally refetch data or update initialData if needed
       } else {
-        throw new Error(response.data.message || "Failed to save changes");
+        toast.error("Save Failed", {
+          description: response.data.msg || "Could not save changes.",
+        });
       }
     } catch (error) {
-      console.error("Save error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to save changes");
+      console.error("Error saving changes:", error);
+      toast.error("Save Error", {
+        description: "An unexpected error occurred while saving changes.",
+      });
     } finally {
       setIsSaving(false);
     }
