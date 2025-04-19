@@ -252,10 +252,11 @@ export default function PresentationDashboard() {
                           />
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center p-4">
-                          <div className="space-y-2.5 w-full max-w-[80%]">
-                            <div className="h-1.5 bg-gray-200/80 rounded-full w-full group-hover:bg-blue-200/60 transition-colors duration-300"></div>
-                            <div className="h-1.5 bg-gray-200/80 rounded-full w-4/5 group-hover:bg-blue-200/60 transition-colors duration-300"></div>
-                            <div className="h-1.5 bg-gray-200/80 rounded-full w-2/3 group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                          {/* Changed from space-y-2.5 and vertical layout to flex row and space-x-2.5 */}
+                          <div className="flex space-x-1.5 w-full max-w-[80%] justify-center">
+                            <div className="h-10 w-1.5 bg-gray-200/80 rounded-full group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                            <div className="h-10 w-1.5 bg-gray-200/80 rounded-full group-hover:bg-blue-200/60 transition-colors duration-300"></div>
+                            <div className="h-10 w-1.5 bg-gray-200/80 rounded-full group-hover:bg-blue-200/60 transition-colors duration-300"></div>
                           </div>
                         </div>
                       </div>

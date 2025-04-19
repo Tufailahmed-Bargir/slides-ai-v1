@@ -149,8 +149,8 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section - Enhanced with 3D elements and better animations */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        {/* Background decorative elements */}
+      {/* <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Background decorative elements 
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
           <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
@@ -237,7 +237,7 @@ const LandingPage = () => {
                   className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                 />
 
-                {/* Floating UI elements for visual interest */}
+                {/* Floating UI elements for visual interest *
                 <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg z-20 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -253,7 +253,7 @@ const LandingPage = () => {
                 </div>
               </div>
 
-              {/* Stats card */}
+              {/* Stats card 
               <div className="absolute -bottom-6 -right-6 bg-white rounded-xl shadow-xl transform hover:scale-105 transition-transform duration-300 z-20 p-4 border border-blue-100">
                 <div className="flex items-center gap-3">
                   <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg p-2">
@@ -268,7 +268,7 @@ const LandingPage = () => {
                 </div>
               </div>
 
-              {/* Time saved card */}
+              {/* Time saved card 
               <div className="absolute -top-6 -left-6 bg-white rounded-xl shadow-xl transform hover:scale-105 transition-transform duration-300 z-20 p-4 border border-blue-100">
                 <div className="flex items-center gap-3">
                   <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg p-2">
@@ -285,7 +285,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Trusted by logos */}
+          {/* Trusted by logos 
           <div className="mt-20 border-t border-gray-100 pt-10">
             <p className="text-center text-sm font-medium text-gray-500 mb-6">TRUSTED BY INNOVATIVE COMPANIES</p>
             <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
@@ -297,7 +297,119 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+
+
+<section className="relative pt-32 pb-20 overflow-hidden">
+      {/* Enhanced background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-1/4 right-1/2 w-96 h-96 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-3000"></div>
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <Badge className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full mb-4 hover:bg-blue-200 transition-colors inline-flex mx-auto">
+            Revolutionizing Presentations
+          </Badge>
+
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight mb-6">
+            Create stunning
+            <div className="relative inline-block mx-2">
+              <span className="relative z-10 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent px-2">
+                presentations
+              </span>
+              <div className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full opacity-70 z-0"></div>
+            </div>
+            with AI magic
+          </h1>
+
+          <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto mb-8">
+            Transform your ideas into professional presentations in seconds. Our AI understands your content and creates
+            visually stunning slides that captivate your audience.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Link href={"/login"}>
+              <Button className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white px-8 py-6 rounded-full text-lg shadow-lg shadow-blue-500/20 transition-all duration-300 hover:shadow-xl">
+                Try for Free <ArrowRight className="ml-2" size={20} />
+              </Button>
+            </Link>
+
+            <Link href={"#demo"}>
+              <Button
+                variant="outline"
+                className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-6 rounded-full text-lg transition-all duration-300 flex items-center gap-2"
+              >
+                <Play className="w-5 h-5 fill-blue-600 text-blue-600" /> Watch Demo
+              </Button>
+            </Link>
+          </div>
+
+          {/* Feature highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md border border-blue-50 hover:shadow-lg hover:border-blue-100 transition-all duration-300">
+              <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg p-3 w-12 h-12 flex items-center justify-center mb-4 mx-auto">
+                <Sparkles className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">AI-Powered Design</h3>
+              <p className="text-gray-600 text-sm">Smart templates that adapt to your content automatically</p>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md border border-blue-50 hover:shadow-lg hover:border-blue-100 transition-all duration-300">
+              <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg p-3 w-12 h-12 flex items-center justify-center mb-4 mx-auto">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Save 3+ Hours</h3>
+              <p className="text-gray-600 text-sm">Create professional presentations in minutes, not hours</p>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md border border-blue-50 hover:shadow-lg hover:border-blue-100 transition-all duration-300">
+              <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg p-3 w-12 h-12 flex items-center justify-center mb-4 mx-auto">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">10,000+ Users</h3>
+              <p className="text-gray-600 text-sm">Trusted by professionals worldwide</p>
+            </div>
+          </div>
+
+          {/* Social proof */}
+          <div className="flex items-center justify-center gap-4 text-gray-600">
+            <div className="flex -space-x-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-sm">
+                  <Image src={`/user1.png`} alt={`User ${i}`} width={40} height={40} className="object-cover" />
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="flex items-center text-amber-500">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-sm font-medium">
+                Trusted by <span className="font-bold text-blue-600">10,000+</span> professionals
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Trusted by logos */}
+        <div className="mt-16 border-t border-gray-100 pt-10">
+          <p className="text-center text-sm font-medium text-gray-500 mb-6">TRUSTED BY INNOVATIVE COMPANIES</p>
+          <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
+            {["Microsoft", "Google", "Amazon", "Airbnb", "Spotify", "Uber"].map((company) => (
+              <div key={company} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <div className="text-xl font-bold">{company}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
 
       {/* Features Section - Enhanced with interactive tabs and better visuals */}
       <section id="features" className="py-24 bg-gray-50">

@@ -343,13 +343,13 @@ export default function PreviewContent({ initialData }: { initialData: { id: str
 
       {/* Main Content Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        {/* Changed from grid to flex with horizontal scroll */}
-        <div className="flex overflow-x-auto space-x-6 lg:space-x-8 pb-4">
+        {/* Changed from flex horizontal scroll to vertical grid */}
+        <div className="grid grid-cols-1 gap-6 lg:gap-8">
           {editedContent.slides.map((slide, idx) => (
             <div
               key={`grid-${idx}`}
-              // Added flex-shrink-0 and fixed width for horizontal layout
-              className="flex-shrink-0 w-[400px] bg-white rounded-xl border border-slate-200/80 shadow-sm transition-all duration-200 relative overflow-hidden group cursor-pointer hover:shadow-md"
+              // Removed flex-shrink-0 and fixed width
+              className="bg-white rounded-xl border border-slate-200/80 shadow-sm transition-all duration-200 relative overflow-hidden group cursor-pointer hover:shadow-md"
               onClick={() => {
                  setCurrentSlideIndex(idx);
                  setViewMode("edit"); // Switch to edit mode on click

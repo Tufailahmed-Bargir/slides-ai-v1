@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import Image from "next/image";
  
 
 const formSchema = z.object({
@@ -32,7 +33,9 @@ export default function PresentationCreator({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = React.use(params);
+  const { id } = React.use(params); // Corrected type: params is an object, not a Promise
+
+  // const { id } = params; // Directly destructure id from params
   const [slideCount, setSlideCount] = useState(1);
   const [showSlideSelector, setShowSlideSelector] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
@@ -292,7 +295,9 @@ export default function PresentationCreator({
                         >
                           {file.file.type.startsWith('image/') ? (
                             // Use regular img tag for blob URLs instead of Next.js Image component
-                            <img
+                            <Image
+                            width={40}
+                            height={40}
                               src={file.preview} 
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"

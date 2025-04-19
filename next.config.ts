@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -11,6 +12,13 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
+  },
+  webpack: (config) => {
+    // Add the MiniCssExtractPlugin to the plugins array
+    config.plugins.push(new MiniCssExtractPlugin());
+
+    // Important: return the modified config
+    return config;
   },
 };
 
