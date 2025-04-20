@@ -234,7 +234,7 @@ export default function PresentationDashboard() {
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
             </div>
-          ) : presentations.length === 0 ? (
+          ) : presentations?.length === 0 ? (
             <div className="bg-white rounded-2xl p-24 flex flex-col items-center justify-center shadow-xl shadow-gray-200/50 border border-gray-100">
               <div className="bg-gray-50 p-4 rounded-full mb-6">
                 <MonitorPlay className="w-12 h-12 text-gray-400" />
@@ -253,7 +253,7 @@ export default function PresentationDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {presentations.map((presentation) => {
+              {presentations?.map((presentation) => {
                 return (
                   <div key={presentation.id} className="relative group">
                     <Link
