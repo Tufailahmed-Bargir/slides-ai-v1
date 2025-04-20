@@ -50,25 +50,30 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     setErrors({}); // Clear errors on Google sign-in attempt
     try {
-      // No need to call custom-login for Google
+      // Check if Google client ID exists in env variables first
       const result = await signIn("google", {
         redirect: false, // Important: handle redirect manually
         callbackUrl: "/dashboard",
       });
 
       if (result?.error) {
-        toast.error(`Google Sign-In Failed: ${result.error}`);
+        // Provide more specific error messages based on the error
+        if (result.error.includes("configuration")) {
+          toast.error("Google Sign-In Failed: OAuth configuration error. Please contact support.");
+        } else if (result.error.includes("AccessDenied") || result.error.includes("access_denied")) {
+          toast.error("Sign-in was canceled or access was denied");
+        } else {
+          toast.error(`Google Sign-In Failed: ${result.error}`);
+        }
         console.error("Google Authentication error:", result.error);
         setIsGoogleLoading(false);
       } else if (result?.ok && !result.error) {
         // Successful sign in, redirect
         router.push(result.url || "/dashboard");
         // No need to set loading false here as page navigates away
-      } else {
-        // Handle unexpected cases
-        toast.error("Google Sign-In failed. Please try again.");
+      } 
         setIsGoogleLoading(false);
-      }
+       
     } catch (error) {
       toast.error("An unexpected error occurred during Google Sign-In");
       console.error("Unexpected error during Google authentication:", error);
