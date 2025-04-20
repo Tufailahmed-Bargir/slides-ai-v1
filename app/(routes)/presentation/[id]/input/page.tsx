@@ -21,8 +21,8 @@ import Image from "next/image";
  
 
 const formSchema = z.object({
-  content: z.string().min(1, "Input content cannot be Empty"),
-  instructions: z.string().min(1, "Instructions Cannot be Empty"),
+  content: z.string().min(5, "Input content cannot be Empty and must have atleat 5 charecters"),
+  instructions: z.string().min(5, "Instructions Cannot be Empty and must have atleat 5 charecters"),
   goal: z.string().optional(),
   audience: z.string().optional(),
   familiarity: z.string().optional(),

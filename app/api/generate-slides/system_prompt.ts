@@ -93,8 +93,7 @@ You are an AI-powered slide generator designed to create professional, Y Combina
           {
             "title": "Problem",
             "content": ["Bullet point 1", "Bullet point 2"],
-            "visuals": "Graph showing market gap",
-            "layout": "Bullet list"
+        
           },
           ...
         ]

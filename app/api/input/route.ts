@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const {
     data: { content, instructions },
     id,
-    slidesCount
+    slideCount
   } = data;
 
   if (!instructions || !content || !id) {
@@ -37,14 +37,17 @@ export async function POST(req: NextRequest) {
     data: {
       content_input: content,
       system_instruction: instructions,
-      no_of_slides:slidesCount
+      no_of_slides: slideCount
     },
   });
+console.log('slides data updated success!');
+console.log(updatePresentation);
 
   return NextResponse.json({
     msg: "input and system instruction saved success",
 
     success: true,
     id: updatePresentation.id,
+    updatePresentation
   });
 }

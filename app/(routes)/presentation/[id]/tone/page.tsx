@@ -87,13 +87,13 @@ export default function ToneCalibration({
 
     try {
       const response = await axios.post("/api/set-calibrate-tone", {
-        tone: selectedTone === "Custom" ? customToneValue : selectedTone,
+        tone: tone === "Custom" ? customToneValue : tone,
         id,
       });
       console.log("Tone response:", response.data);
       if (response.data.success) {
         toast.success("Tone Updated", {
-          description: `Presentation tone set to ${selectedTone === "Custom" ? customToneValue : selectedTone}.`,
+          description: `Presentation tone set to ${tone === "Custom" ? customToneValue : tone}.`,
         });
       }
     } catch (err) {
