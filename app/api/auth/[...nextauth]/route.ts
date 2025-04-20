@@ -7,6 +7,7 @@ import prisma from "@/lib/db";
  
 
 const handler = NextAuth({
+  debug:true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
@@ -20,12 +21,13 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+   
+        try {
         if (!credentials?.email || !credentials?.password) {
           
           throw new Error("Email and password are required.");
         }
 
-        try {
            const userExists = await prisma.user.findUnique({
             where:{email:credentials?.email}
            })
